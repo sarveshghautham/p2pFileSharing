@@ -25,7 +25,7 @@ public class HandShakeMessage implements Serializable {
 		OutputStream os = ClientSocket.getOutputStream();  
 		ObjectOutputStream oos = new ObjectOutputStream(os);  			  
 		oos.writeObject(this);
-		
+		System.out.println("Hello sent to: "+this.PeerID);
 		os.close();
 		oos.close();
 	}

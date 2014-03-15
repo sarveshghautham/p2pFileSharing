@@ -33,13 +33,9 @@ class establishClientConnection extends Thread {
 			HandShakeMessage HMsg = new HandShakeMessage("HELLO", peerID);
 			HMsg.SendHandShakeMessage (ClientSocket);
 			
-			System.out.println("Hello sent to :"+myPeerID);
-			
 			HMsg.ReceiveHandShakeMessage(ClientSocket);
 			
 //			clientSocket.close();
-			
-			
 			
 			/*TODO: We need to accept new peers which are created later. */
 			
