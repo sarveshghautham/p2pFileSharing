@@ -25,32 +25,41 @@ public class HandShakeMessage implements Serializable {
 		OutputStream os = ClientSocket.getOutputStream();  
 		ObjectOutputStream oos = new ObjectOutputStream(os);  			  
 		oos.writeObject(this);
-		System.out.println("Hello sent to: "+this.PeerID);
-		os.close();
-		oos.close();
+		
+		//System.out.println("Hello sent to:"+this.PeerID);
+		
+		//os.close();
+		//oos.close();
 	}
 	
-	public void ReceiveHandShakeMessage (Socket ClientSocket) throws IOException {
+	public boolean ReceiveHandShakeMessage (Socket ClientSocket) throws IOException {
 		try {
 			InputStream is = ClientSocket.getInputStream();  
 			ObjectInputStream ois = new ObjectInputStream(is);  
 			HandShakeMessage RespMsg = (HandShakeMessage)ois.readObject();  
 			if (RespMsg != null) {
-				System.out.println(RespMsg.PeerID);
-			}  
 			
-			if (RespMsg.PeerID == this.PeerID) {
-				System.out.println("HandShake success");
+				if (RespMsg.PeerID == this.PeerID) {
+					System.out.println("HandShake success");
+					return true;
+				}
+				else {
+					System.out.println("HandShake failed");
+					return false;
+				}
 			}
 			else {
-				System.out.println("HandShake failed");
+				return false;
 			}
 			
-			is.close();
-			ois.close();
 		} 
 		catch (ClassNotFoundException ex) {
 			System.out.println(ex);
 		}
+		finally {
+			//is.close();
+			//ois.close();
+		}
+		return false;
 	}
 }

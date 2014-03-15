@@ -27,18 +27,22 @@ class establishClientConnection extends Thread {
 			//Creating multiple client sockets for peers already started.
 			Socket ClientSocket = new Socket(hostName, portNumber);
 			
-			System.out.println("Before handshake: PeerID: "+peerID);
+			//System.out.println("Before handshake: PeerID: "+peerID);
 			//Send handshake message
-			//Hmsg.SendHandShakeMessage (peerID, );
-			HandShakeMessage HMsg = new HandShakeMessage("HELLO", peerID);
-			HMsg.SendHandShakeMessage (ClientSocket);
 			
-			HMsg.ReceiveHandShakeMessage(ClientSocket);
+			HandShakeMessage HMsg = new HandShakeMessage("HELLO", peerID);
+			HMsg.SendHandShakeMessage (ClientSocket);			
+			
+			//Handshake success
+			if (HMsg.ReceiveHandShakeMessage(ClientSocket)) {
+				//Now send a bitfield message.
+				
+			}
+			
 			
 //			clientSocket.close();
 			
 			/*TODO: We need to accept new peers which are created later. */
-			
 		}
 		catch (IOException ex) {
 			System.out.println("IOException occured:"+ex);
