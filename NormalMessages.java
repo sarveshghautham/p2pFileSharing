@@ -3,12 +3,14 @@ package p2pFileSharing;
 public class NormalMessages {
 
 	int MessageLength;
-	byte MessageType;
-	String MessagePayload;
+	int MessageType;
 	
-	public NormalMessages (int MsgLen,byte MsgType, String MsgPayLoad) {
-		MessageLength = MsgLen;
-		MessageType = MsgType;
-		MessagePayload = MsgPayLoad;
+	public NormalMessages () {
+		
+	}
+	
+	public NormalMessages (int MsgLen,int MsgType) {
+		this.MessageLength = MsgLen;
+		this.MessageType = MsgType;
 	}	
 }

@@ -3,6 +3,64 @@ import java.io.*;
 
 class FileHandler {
 
+	String inputFileName;
+	long fileSize;
+	int pieceSize;
+	int pieceCount;
+	
+	public boolean CheckHasFile (int peerID) throws IOException {
+		
+		String fileName = System.getProperty("user.dir")+"/src/p2pFileSharing/PeerInfo.cfg";
+		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(fileName)));
+		String line="";
+		String []tokens = new String[4];
+		
+		while ((line = br.readLine()) != null) {
+			tokens = line.split("\\s+");
+			if (peerID == Integer.parseInt(tokens[0])) {
+				
+				if (Integer.parseInt(tokens[3]) == 1) {
+					br.close();
+					return true;
+				}
+				else {
+					br.close();
+					return false;
+				}
+			}
+		}
+		
+		br.close();
+		return false;
+	}
+	
+	public void ReadCommonConfigFile () throws IOException {
+		String FileName = System.getProperty("user.dir")+"/src/p2pFileSharing/Common.cfg";
+		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(FileName)));
+		String line=null;
+		int lineCount=0;
+		String []temp = new String[2];
+		
+		while((line = br.readLine()) != null) {
+			temp = line.split(" ");
+			if (lineCount == 3) {
+				this.inputFileName = temp[1];
+			}
+			else if (lineCount == 4) {
+				this.fileSize = Long.parseLong(temp[1]);
+			}
+			else if (lineCount == 5) {
+				this.pieceSize = Integer.parseInt(temp[1]);
+			}
+			lineCount++;
+		}
+		
+		this.pieceCount = (int)this.fileSize/this.pieceSize;
+		
+		br.close();
+	}
+	
+	
 	public void SplitFile (String FileName, long FileSize, int PieceSize) throws IOException {
 		
 		BufferedInputStream bis = new BufferedInputStream(new FileInputStream(FileName));
