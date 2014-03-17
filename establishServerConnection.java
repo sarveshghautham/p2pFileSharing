@@ -8,12 +8,14 @@ class establishServerConnection extends Thread {
 	public Socket connectionSocket;
 	int PeerID;
 	BitFields clientPeerBitFieldMsg;
+	BitFields myBitFields;
 	boolean interested;
 	boolean notInterested;
 	
-	public establishServerConnection (Socket conSock, int peer_id) {
-		connectionSocket = conSock;
-		PeerID = peer_id; //My peer ID.
+	public establishServerConnection (Socket conSock, int peer_id, BitFields myBitField) {
+		this.connectionSocket = conSock;
+		this.PeerID = peer_id; //My peer ID.
+		this.myBitFields = myBitField;
 	}
 	
 	public void run () {
@@ -32,7 +34,7 @@ class establishServerConnection extends Thread {
 			
 			//Constructing server bitfield.
 			BitFields serverBMsg = new BitFields(4,5);
-			serverBMsg.intializedBitFieldMsg(PeerID);
+			//serverBMsg.intializedBitFieldMsg(PeerID);
 			
 			//Server bitfield is not empty.
 			if (!serverBMsg.emptyBitField) {
@@ -69,6 +71,17 @@ class establishServerConnection extends Thread {
 			else {
 				this.interested = true;
 			}
+			
+			//Receive have message.
+			HaveMessage rxHvMsg = new HaveMessage();
+			int byteIndex = rxHvMsg.ReceiveHaveMsg(connectionSocket); 
+			if (byteIndex != -1) {
+				this.clientPeerBitFieldMsg.UpdateBitFieldMsg(byteIndex);
+			}
+			else {
+				System.out.println("Error in receiving have msg");
+			}
+			
 		}
 		
 		catch (IOException ex) {

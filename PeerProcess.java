@@ -7,6 +7,11 @@ public class PeerProcess {
 
 	// Will be moved. Temp function.
 	public Vector<RemotePeerInfo> peerInfoVector;
+	public BitFields myBitFields;
+	
+	public PeerProcess () {
+		
+	}
 	
 	public void getConfiguration()
 	{
@@ -18,7 +23,7 @@ public class PeerProcess {
 				
 				 String[] tokens = st.split("\\s+");
 		    	 peerInfoVector.addElement(new RemotePeerInfo(tokens[0], tokens[1], tokens[2]));
-			
+
 			}
 			
 			in.close();
@@ -28,7 +33,6 @@ public class PeerProcess {
 		}
 	}
 	
-	
 	public static void main (String []args) throws IOException {
 		
 		PeerProcess pTemp = new PeerProcess();
@@ -37,7 +41,7 @@ public class PeerProcess {
 		
 		int i=0, j=0;
 		int peerPort=0;
-		int peerId = Integer.parseInt(args[0]);		
+		int myPeerId = Integer.parseInt(args[0]);		
 		
 		pTemp.getConfiguration();
 		
@@ -50,8 +54,11 @@ public class PeerProcess {
 			for (i=0; i< pTemp.peerInfoVector.size(); i++) {
 			pInfo = (RemotePeerInfo) pTemp.peerInfoVector.elementAt(i);
 			
-			if (Integer.parseInt(pInfo.peerId) != peerId) {
-				ClientThreads[i] = new establishClientConnection(peerId, pInfo.peerId, pInfo.peerAddress, pInfo.peerPort);
+			if (Integer.parseInt(pInfo.peerId) != myPeerId) {
+				BitFields bF = new BitFields(4, 5);
+				bF.intializedBitFieldMsg(myPeerId);
+				pTemp.myBitFields = bF;
+				ClientThreads[i] = new establishClientConnection(myPeerId, pInfo.peerId, pInfo.peerAddress, pInfo.peerPort, pTemp.myBitFields);
 				ClientThreads[i].start();
 			}
 			else {
@@ -64,7 +71,7 @@ public class PeerProcess {
 		
 		while (true) {
 			Socket connSocket = serverSock.accept();
-			servCon = new establishServerConnection(connSocket, peerId);
+			servCon = new establishServerConnection(connSocket, myPeerId, pTemp.myBitFields);
 			servCon.start();
 		}
 	

@@ -15,12 +15,14 @@ class establishClientConnection extends Thread {
 	String hostName;
 	Socket clientSocket;
 	BitFields serverPeerBitFieldMsg;
+	BitFields myBitFields;
 	
-	public establishClientConnection (int mypeer_id, String peer_id, String peer_address, String peer_port) {
-		peerID = Integer.parseInt(peer_id); //Server's peer ID.
-		myPeerID = mypeer_id; //Client's peer ID.
-		hostName = peer_address;
-		portNumber = Integer.parseInt(peer_port);
+	public establishClientConnection (int mypeer_id, String peer_id, String peer_address, String peer_port, BitFields myBitField) {
+		this.peerID = Integer.parseInt(peer_id); //Server's peer ID.
+		this.myPeerID = mypeer_id; //Client's peer ID.
+		this.hostName = peer_address;
+		this.portNumber = Integer.parseInt(peer_port);
+		this.myBitFields = myBitField;
 	}
 	
 	public void run() {
@@ -38,12 +40,12 @@ class establishClientConnection extends Thread {
 			if (HMsg.ReceiveHandShakeMessage(ClientSocket)) {
 				
 				//Now send a bitfield message.
-				BitFields clientBMsg = new BitFields(4, 5);
-				clientBMsg.intializedBitFieldMsg(myPeerID);
-				
+			//	BitFields clientBMsg = new BitFields(4, 5);
+			//	clientBMsg.intializedBitFieldMsg(myPeerID);
+			
 				//If emptyBitField is set, don't send bitfield msg.
-				if (!clientBMsg.emptyBitField) {
-					clientBMsg.SendBitFieldMsg(ClientSocket);	
+				if (!myBitFields.emptyBitField) {
+					myBitFields.SendBitFieldMsg(ClientSocket);	
 				}
 				else {
 					System.out.println("Client: Skipping bitfield msg");
@@ -53,18 +55,31 @@ class establishClientConnection extends Thread {
 				BitFields receiveBMsg = new BitFields();
 				if (receiveBMsg.ReceiveBitFieldMsg(ClientSocket)) {
 					this.serverPeerBitFieldMsg = receiveBMsg;
-					if (clientBMsg.AnalyzeReceivedBitFieldMsg(receiveBMsg)) {
+					if (myBitFields.AnalyzeReceivedBitFieldMsg(receiveBMsg)) {
 						//send interested msg.
-						InterestedMessage nIMsg = new InterestedMessage(4,3);
+						InterestedMessage nIMsg = new InterestedMessage(4,2);
 						nIMsg.SendInterestedMsg(ClientSocket);
 					}
 					else {
 						//send not interested msg.
-						InterestedMessage nIMsg = new InterestedMessage(4,4);
+						InterestedMessage nIMsg = new InterestedMessage(4,3);
 						nIMsg.SendInterestedMsg(ClientSocket);
 					}
 				}
 			}
+			
+			//Receiving piece msg and handling choke and unchoke.
+			int byteIndex=0;
+			//index = getPiece();
+			
+			//Update the bitField message.
+			myBitFields.UpdateBitFieldMsg (byteIndex);
+			
+			//Sending have message after receiving a piece.
+			HaveMessage hvMsg = new HaveMessage(4, 5, byteIndex);
+			hvMsg.SendHaveMsg(ClientSocket);
+			
+			//notify other threads about the updated bit field.
 			
 //			clientSocket.close();
 			

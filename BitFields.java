@@ -75,4 +75,10 @@ class BitFields extends NormalMessages{
 		
 		return false;
 	}
+	
+	public void UpdateBitFieldMsg (int index) {
+		
+		this.bitFieldMsg[index] = true;
+		
+	}
 }
