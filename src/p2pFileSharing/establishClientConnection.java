@@ -57,13 +57,13 @@ class establishClientConnection extends Thread {
 					this.serverPeerBitFieldMsg = receiveBMsg;
 					if (myBitFields.AnalyzeReceivedBitFieldMsg(receiveBMsg)) {
 						//send interested msg.
-						InterestedMessage nIMsg = new InterestedMessage(4,2);
+						InterestedMessage nIMsg = new InterestedMessage(0,2, myPeerID);
 						nIMsg.SendInterestedMsg(ClientSocket);
 					}
 					else {
 						//send not interested msg.
-						InterestedMessage nIMsg = new InterestedMessage(4,3);
-						nIMsg.SendInterestedMsg(ClientSocket);
+						NotInterestedMessage nIMsg = new NotInterestedMessage(0,3);
+						nIMsg.SendNotInterestedMsg(ClientSocket);
 					}
 				}
 			}
@@ -80,6 +80,7 @@ class establishClientConnection extends Thread {
 			hvMsg.SendHaveMsg(ClientSocket);
 			
 			//notify other threads about the updated bit field.
+		
 			
 //			clientSocket.close();
 			

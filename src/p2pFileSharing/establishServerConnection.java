@@ -1,14 +1,16 @@
 package p2pFileSharing;
-
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Vector;
 
 class establishServerConnection extends Thread {
 	
 	public Socket connectionSocket;
 	int PeerID;
+	int cPeerID;
 	BitFields clientPeerBitFieldMsg;
 	BitFields myBitFields;
+	PeerProcess pObj;
 	boolean interested;
 	boolean notInterested;
 	
@@ -64,12 +66,23 @@ class establishServerConnection extends Thread {
 			//Wait for client's interest/not interested message.
 			InterestedMessage fromClientIMsg = new InterestedMessage();
 			fromClientIMsg.ReceiveInterestedMsg(connectionSocket);
+			cPeerID = fromClientIMsg.clientPeerID;
 			
 			if (fromClientIMsg.MessageType == 4) {
 				this.notInterested = true;
 			}
 			else {
 				this.interested = true;
+				this.pObj.ListofInterestedPeers.add(cPeerID);
+				
+				ChokeUnchokeMessage c = new ChokeUnchokeMessage(0,1);
+				
+				//Keep waiting.
+				while (!(this.pObj.PreferredNeighbors.contains(cPeerID))); 
+				//Send unchoked message to preferred neighbor.
+				c.SendUnchokeMsg(connectionSocket);
+				
+				
 			}
 			
 			//Receive have message.

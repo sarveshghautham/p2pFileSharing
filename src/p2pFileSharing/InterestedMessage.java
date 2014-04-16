@@ -7,30 +7,33 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
-public class ChokeUnchokeMessage extends NormalMessages{
+public class InterestedMessage extends NormalMessages {
+
+	int clientPeerID;
 	
-	public ChokeUnchokeMessage () {
-		
+	public InterestedMessage () {
+
 	}
 	
-	public ChokeUnchokeMessage (int MsgLen, int MsgType) {
+	public InterestedMessage (int MsgLen, int MsgType, int peerID) {
 		super(MsgLen, MsgType);
+		this.clientPeerID = peerID;
 	}
 	
-	public void SendNotChokeUnchokeMsg (Socket clientSocket) throws IOException {
+	public void SendInterestedMsg (Socket clientSocket) throws IOException {
 		OutputStream os = clientSocket.getOutputStream();  
 		ObjectOutputStream oos = new ObjectOutputStream(os);  			  
 		oos.writeObject(this);
 	}
 	
-	public boolean ReceiveChokeUnchokeMsg (Socket soc) throws IOException {
+	public boolean ReceiveInterestedMsg (Socket soc) throws IOException {
 		
 		try {
 			InputStream is = soc.getInputStream();  
 			ObjectInputStream ois = new ObjectInputStream(is);  
-			ChokeUnchokeMessage cm = (ChokeUnchokeMessage)ois.readObject(); 
+			InterestedMessage im = (InterestedMessage)ois.readObject(); 
 			
-			if (cm != null) {
+			if (im != null) {
 				return true;
 			}
 			else {
@@ -46,5 +49,4 @@ public class ChokeUnchokeMessage extends NormalMessages{
 			//ois.close();
 		}
 	}
-
 }

@@ -1,6 +1,6 @@
 package p2pFileSharing;
 /*
- *                     CEN5501C Project2
+	CEN5501C Project2
  * This is the program starting remote processes.
  * This program was only tested on CISE SunOS environment.
  * If you use another environment, for example, linux environment in CISE 
@@ -47,6 +47,7 @@ public class StartRemotePeers {
 			System.out.println(ex.toString());
 		}
 	}
+	
 	
 	/**
 	 * @param args

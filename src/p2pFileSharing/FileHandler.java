@@ -34,6 +34,45 @@ class FileHandler {
 		return false;
 	}
 	
+	public int[] GetIntervalTimes() throws IOException {
+		
+		int []time = new int[2];
+		int lineCount=0;
+		
+		String FileName = System.getProperty("user.dir")+"/src/p2pFileSharing/Common.cfg";
+		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(FileName)));
+		String line=null;
+		
+		String []temp = new String[2];
+		int i=0;
+		
+		while ( (line = br.readLine() ) != null )
+		{
+			if (lineCount == 1 || lineCount == 2) {
+				temp = line.split(" ");
+				time[i] = Integer.parseInt(temp[1]);
+				i++;
+			}
+			lineCount++;
+		}
+		br.close();
+
+		return time;
+	}
+	
+	public int GetNumberOfPreferredNeighbors () throws IOException {
+		String FileName = System.getProperty("user.dir")+"/src/p2pFileSharing/Common.cfg";
+		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(FileName)));
+		String line=null;
+		
+		String []temp = new String[2];
+		
+		line = br.readLine();
+		temp = line.split(" ");
+		br.close();
+		return (Integer.parseInt(temp[1]));
+	}
+	
 	public void ReadCommonConfigFile () throws IOException {
 		String FileName = System.getProperty("user.dir")+"/src/p2pFileSharing/Common.cfg";
 		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(FileName)));
@@ -103,61 +142,6 @@ class FileHandler {
 			bis.close();
 		}
 		bos.close();
-	}
-	
-	public void SplitTextFile (String FileName, long FileSize, int PieceSize) throws IOException {
-		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(FileName)));
-		//BufferedInputStream bis = new BufferedInputStream(new FileInputStream(FileName));
-		
-		int pieceCount=0;
-		String splitFileName;		
-		String readFile;
-		String toBeWritten="";
-		
-		while ((readFile=br.readLine()) != null) {
-		
-			toBeWritten += readFile;
-			
-			if (toBeWritten.length() >= PieceSize) {
-				splitFileName = FileName+"."+pieceCount;
-				String SubStrToBeWritten = toBeWritten.substring(0, PieceSize);
-				this.WriteToFile(splitFileName, SubStrToBeWritten);
-				pieceCount++;
-				
-				if (toBeWritten.length() == PieceSize) {
-					toBeWritten = "";
-				}
-				//if (toBeWritten.length() >= PieceSize) 
-				else {
-					toBeWritten=toBeWritten.substring(PieceSize);
-				}				
-				splitFileName="";				
-			}									
-		}
-		if (toBeWritten != "") {
-			splitFileName = FileName+"."+pieceCount;
-			this.WriteToFile(splitFileName, toBeWritten);
-		}
-		 
-		br.close();		
-	}
-	
-	public void JoinTextFile (String FileName, long FileSize, int PieceSize) throws IOException {
-		
-		int pieceCount = (int)FileSize/PieceSize;
-		
-		System.out.println("Piece count: "+pieceCount);
-		String ReadFromFileName = FileName;
-		String ReadFromFile = "";
-		
-		for (int i=0; i<pieceCount; i++) {
-			ReadFromFileName = FileName+"."+i;
-			BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(ReadFromFileName)));
-			ReadFromFile += br.readLine();
-			br.close();
-		}
-		
-		this.WriteToFile(FileName+".new", ReadFromFile);
 	}
 	
 	public void WriteToFile (String FileName, String data) throws IOException{
