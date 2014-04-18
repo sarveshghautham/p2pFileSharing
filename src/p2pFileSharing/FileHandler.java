@@ -34,6 +34,26 @@ class FileHandler {
 		return false;
 	}
 	
+	public String getFileName() throws IOException {
+		
+		String fileName = System.getProperty("user.dir")+"/src/p2pFileSharing/PeerInfo.cfg";
+		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(fileName)));
+		String line="";
+		String []tokens = new String[4];
+		int count=0;
+		
+		while ((line = br.readLine()) != null) {
+			if (count == 3)
+				break;
+			count++;
+		}
+		
+		tokens = line.split("\\s+");
+		br.close();
+		
+		return tokens[1];
+	}
+	
 	public int[] GetIntervalTimes() throws IOException {
 		
 		int []time = new int[2];
@@ -156,6 +176,21 @@ class FileHandler {
 		BufferedWriter bw = new BufferedWriter(fw);
 		bw.write(data);
 		bw.close();
+	}
+	
+	public int readPiece (int pieceIndex) throws IOException {
+		
+		int bytesRead=0;
+		String FileName = this.getFileName();
+		
+		BufferedInputStream bis = new BufferedInputStream(new FileInputStream(FileName+"."+pieceIndex));
+		
+		while ((bytesRead = bis.read()) != -1);
+			
+		bis.close();
+		
+		return bytesRead;
+		
 	}
 	/*
 	public static void main (String []args) throws IOException {

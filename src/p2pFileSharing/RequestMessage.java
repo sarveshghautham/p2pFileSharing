@@ -1,6 +1,10 @@
 package p2pFileSharing;
 import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Random;
 
 public class RequestMessage extends NormalMessages{
 
@@ -45,4 +49,28 @@ int msgByteIndex;
 		}
 	}
 	
+	public int getPieceIndex(HashSet<Integer> neededByteIndex, HashSet<Integer> requestedByteIndex) {
+		
+		int pieceIndex = 0;
+		
+		int totSize = neededByteIndex.size();
+		Random r = new Random();
+		
+		List<Integer> list = new ArrayList<Integer>(neededByteIndex);
+		
+		if (requestedByteIndex != null) {
+			while (true) {
+				pieceIndex = list.get(r.nextInt(totSize));
+				if (!requestedByteIndex.contains(pieceIndex)) {
+					break;
+				}
+			}
+		}
+		else {
+			pieceIndex = list.get(r.nextInt(totSize));
+		}
+	
+		return pieceIndex;
+		
+	}
 }

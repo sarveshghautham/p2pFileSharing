@@ -1,18 +1,24 @@
 package p2pFileSharing;
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Vector;
 
 public class PeerProcess extends Thread {
 
 	int ServerPeerID;
+	int optPeerID;
 	// Will be moved. Temp function.
 	public Vector<RemotePeerInfo> peerInfoVector;
 	public BitFields myBitFields;	
 	public HashSet<Integer> ListofInterestedPeers;
 	public HashSet<Integer> PreferredNeighbors;
 	public Vector<Integer> Clients;
+	public ArrayList<Integer> chokeList;
+	public HashSet<Integer> neededByteIndex = new HashSet<Integer>();
+	public HashSet<Integer> requestedByteIndex = new HashSet<Integer>();
+	boolean choke=false;
 	
 	public PeerProcess (int peerID) {
 		this.ServerPeerID = peerID;
@@ -83,19 +89,17 @@ public class PeerProcess extends Thread {
 	
 		//Start the server.
 		Socket connSocket = serverSock.accept();
-		servCon = new establishServerConnection(connSocket, myPeerId, pTemp.myBitFields);
+		servCon = new establishServerConnection(connSocket, myPeerId, pTemp);
 		servCon.start();
 			
 		int p = 0, m = 0;
 		FileHandler f = new FileHandler();
 		int []time = f.GetIntervalTimes();
 		
-		p = time[0];
-		m = time[1];
+		p = time[0]; //Timeout - choking interval
+		m = time[1]; //Timeout - optimistically unchoked interval
 		
 		//Start the scheduled tasks.
-		ScheduledTasks s = new ScheduledTasks(myPeerId, p, m);
-		
-	
+		ScheduledTasks s = new ScheduledTasks(pTemp, p, m);
 	}	
 }

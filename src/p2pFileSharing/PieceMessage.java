@@ -9,13 +9,13 @@ import java.net.Socket;
 
 public class PieceMessage extends NormalMessages{
 	int msgByteIndex;
-	String Filepiece;
+	int Filepiece;
 	
 	public PieceMessage () {
 		
 	}
 	
-	public PieceMessage (int msgLen, int msgType, int msgByteIndex, String filePiece) {
+	public PieceMessage (int msgLen, int msgType, int msgByteIndex, int filePiece) {
 		super (msgLen, msgType);
 		this.msgByteIndex = msgByteIndex;
 		this.Filepiece = filePiece;

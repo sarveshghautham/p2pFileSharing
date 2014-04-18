@@ -1,6 +1,7 @@
 package p2pFileSharing;
 import java.io.*;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.net.*;
 
 class BitFields extends NormalMessages{
@@ -62,18 +63,20 @@ class BitFields extends NormalMessages{
 		}
 	}
 	
-	public boolean AnalyzeReceivedBitFieldMsg (BitFields receivedBit) {
+	public HashSet<Integer> AnalyzeReceivedBitFieldMsg (BitFields receivedBit) {
 		
 		boolean[] bMsg1 = receivedBit.bitFieldMsg;
 		boolean[] bMsg2 = this.bitFieldMsg;
 		
+		HashSet<Integer> indexList = new HashSet<Integer>();
+		
 		for (int i=0; i < bMsg1.length; i++) {
-			if (bMsg1[i] != bMsg2[i]) {
-				return true;
+			if (bMsg1[i] != bMsg2[i] && bMsg2[i] == false) {
+				indexList.add(i);
 			}
 		}
 		
-		return false;
+		return indexList;
 	}
 	
 	public void UpdateBitFieldMsg (int index) {

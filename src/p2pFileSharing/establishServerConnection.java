@@ -14,10 +14,14 @@ class establishServerConnection extends Thread {
 	boolean interested;
 	boolean notInterested;
 	
-	public establishServerConnection (Socket conSock, int peer_id, BitFields myBitField) {
+	
+	public NormalMessages nm = new NormalMessages();
+	
+	public establishServerConnection (Socket conSock, int peer_id, PeerProcess pp) {
 		this.connectionSocket = conSock;
 		this.PeerID = peer_id; //My peer ID.
-		this.myBitFields = myBitField;
+		this.myBitFields = pObj.myBitFields;
+		this.pObj = pp;
 	}
 	
 	public void run () {
@@ -25,66 +29,77 @@ class establishServerConnection extends Thread {
 		try {
 			
 			HandShakeMessage HMsg = new HandShakeMessage(PeerID);
-			HMsg.ReceiveHandShakeMessage(connectionSocket);
+			
+			//Wait till the server gets a handshake from client.
+			while (!HMsg.ReceiveHandShakeMessage(connectionSocket));
 			
 			HandShakeMessage RespMsg = new HandShakeMessage("HELLO", PeerID);
 			RespMsg.SendHandShakeMessage(connectionSocket);
 		
-			//Wait for bitField msg from the client.
+			
 			BitFields receivedClientBMsg = new BitFields();
-			boolean hasReceived = receivedClientBMsg.ReceiveBitFieldMsg(connectionSocket);
+			
+			//Wait for bitField msg from the client.
+			while (!receivedClientBMsg.ReceiveBitFieldMsg(connectionSocket));
 			
 			//Constructing server bitfield.
 			BitFields serverBMsg = new BitFields(4,5);
-			//serverBMsg.intializedBitFieldMsg(PeerID);
 			
 			//Server bitfield is not empty.
 			if (!serverBMsg.emptyBitField) {
 				//Sending server bitfield.
-				serverBMsg.SendBitFieldMsg(connectionSocket);
-				
-				if (hasReceived == true) {
-					this.clientPeerBitFieldMsg = receivedClientBMsg;
-				}
+				serverBMsg.SendBitFieldMsg(connectionSocket);			
+				this.clientPeerBitFieldMsg = receivedClientBMsg;
+			
 			}
 			else { //server bitfield is empty.
 				System.out.println("Server: Skipping bitfield msg");
-				/* Not needed
-				if (hasReceived == true) {
-					//Send interested msg.
-					InterestedMessage nIMsg = new InterestedMessage(4,3);
-					nIMsg.SendInterestedMsg(connectionSocket);
-				}
-				else {
-					//send not interested msg.
-					InterestedMessage nIMsg = new InterestedMessage(4,4);
-					nIMsg.SendInterestedMsg(connectionSocket);
-				}
-				*/
 			}
 			
-			//Wait for client's interest/not interested message.
-			InterestedMessage fromClientIMsg = new InterestedMessage();
-			fromClientIMsg.ReceiveInterestedMsg(connectionSocket);
-			cPeerID = fromClientIMsg.clientPeerID;
-			
-			if (fromClientIMsg.MessageType == 4) {
-				this.notInterested = true;
+			ServerMessageHandler m = new ServerMessageHandler();
+			Object readObj;
+			while (true) {
+				
+				while ((readObj = m.listenForMessages(connectionSocket, this.nm)) == null);
+				
+				int msgType = this.nm.MessageType;
+				m.HandleMessages(msgType, readObj, this);
+				
+				readObj = null;
 			}
-			else {
-				this.interested = true;
-				this.pObj.ListofInterestedPeers.add(cPeerID);
-				
-				ChokeUnchokeMessage c = new ChokeUnchokeMessage(0,1);
-				
+			
+			/*
+			
+			ChokeUnchokeMessage c = new ChokeUnchokeMessage(0,1);
+			
+			//Need to change the condition
+			while (true) {
 				//Keep waiting.
 				while (!(this.pObj.PreferredNeighbors.contains(cPeerID))); 
+				
 				//Send unchoked message to preferred neighbor.
 				c.SendUnchokeMsg(connectionSocket);
 				
+				//Wait for request message.
+				
+				
+				//Data exchange.					
+				
+				while (this.pObj.choke == false);
+					
+				if (this.pObj.chokeList.contains(cPeerID)) {
+					c.SendChokeMsg(connectionSocket);
+				}
+			
+				this.pObj.choke = true;
 				
 			}
+		}
+				
 			
+			//Wait for client's interest/not interested message.
+			
+				
 			//Receive have message.
 			HaveMessage rxHvMsg = new HaveMessage();
 			int byteIndex = rxHvMsg.ReceiveHaveMsg(connectionSocket); 
@@ -94,7 +109,7 @@ class establishServerConnection extends Thread {
 			else {
 				System.out.println("Error in receiving have msg");
 			}
-			
+			*/			
 		}
 		
 		catch (IOException ex) {

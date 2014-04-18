@@ -9,12 +9,15 @@ import java.net.Socket;
 
 public class NotInterestedMessage extends NormalMessages {
 
+	int clientPeerID;
+	
 	public NotInterestedMessage () {
 		
 	}
 	
-	public NotInterestedMessage (int MsgLen, int MsgType) {
+	public NotInterestedMessage (int MsgLen, int MsgType, int clientPeerID) {
 		super(MsgLen, MsgType);
+		this.clientPeerID = clientPeerID;
 	}
 	
 	public void SendNotInterestedMsg (Socket clientSocket) throws IOException {
