@@ -4,8 +4,9 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.net.*;
 
-class BitFields extends NormalMessages{
+class BitFields extends NormalMessages implements Serializable{
 
+	private static final long serialVersionUID = 7863262235394607247L;
 	boolean emptyBitField;
 	boolean []bitFieldMsg;
 	
@@ -38,7 +39,7 @@ class BitFields extends NormalMessages{
 		oos.writeObject(this);
 	}
 	
-	public boolean ReceiveBitFieldMsg (Socket soc) throws IOException {
+	public BitFields ReceiveBitFieldMsg (Socket soc) throws IOException {
 		
 		try {
 			InputStream is = soc.getInputStream();  
@@ -46,16 +47,17 @@ class BitFields extends NormalMessages{
 			BitFields RespMsg = (BitFields)ois.readObject();  
 			
 			if (RespMsg != null) {
-				return true;
+				System.out.println("ReceiveBitFieldMsg(): BitField message received");
+				return RespMsg;
 			}
 			else {
 				System.out.println("ReceiveBitFieldMsg(): BitField message not received");
-				return false;
+				return null;
 			}
 		} 
 		catch (ClassNotFoundException ex) {
 			System.out.println(ex);
-			return false;
+			return null;
 		}
 		finally {
 			//is.close();
@@ -69,6 +71,9 @@ class BitFields extends NormalMessages{
 		boolean[] bMsg2 = this.bitFieldMsg;
 		
 		HashSet<Integer> indexList = new HashSet<Integer>();
+		
+		
+		System.out.println("Msg length:"+bMsg1.length);
 		
 		for (int i=0; i < bMsg1.length; i++) {
 			if (bMsg1[i] != bMsg2[i] && bMsg2[i] == false) {

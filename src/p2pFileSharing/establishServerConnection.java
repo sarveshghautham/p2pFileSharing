@@ -21,8 +21,9 @@ class establishServerConnection extends Thread {
 	public establishServerConnection (Socket conSock, int peer_id, PeerProcess pp) {
 		this.connectionSocket = conSock;
 		this.PeerID = peer_id; //My peer ID.
-		this.myBitFields = pObj.myBitFields;
 		this.pObj = pp;
+		this.myBitFields = pp.myBitFields;
+		
 	}
 	
 	public void run () {
@@ -39,9 +40,16 @@ class establishServerConnection extends Thread {
 		
 			
 			BitFields receivedClientBMsg = new BitFields();
-			
+			BitFields returnBMsg; 
 			//Wait for bitField msg from the client.
-			while (!receivedClientBMsg.ReceiveBitFieldMsg(connectionSocket));
+			while (true){
+				returnBMsg = receivedClientBMsg.ReceiveBitFieldMsg(connectionSocket);
+				
+				if (returnBMsg != null) {
+					break;
+				}
+			}
+		
 			
 			//Constructing server bitfield.
 			BitFields serverBMsg = new BitFields(4,5);

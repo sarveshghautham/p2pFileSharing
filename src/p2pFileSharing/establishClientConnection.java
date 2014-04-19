@@ -49,11 +49,11 @@ class establishClientConnection extends Thread {
 			
 			//Now reveive a bitfield message from server.
 			BitFields receiveBMsg = new BitFields();
-			
-			if (receiveBMsg.ReceiveBitFieldMsg(ClientSocket))
+			BitFields returnBMsg = receiveBMsg.ReceiveBitFieldMsg(ClientSocket); 
+			if (returnBMsg != null)
 			{
-				this.serverPeerBitFieldMsg = receiveBMsg;
-				if ( (myBitFields.AnalyzeReceivedBitFieldMsg(receiveBMsg)) != null) {
+				this.serverPeerBitFieldMsg = returnBMsg;
+				if ( (myBitFields.AnalyzeReceivedBitFieldMsg(returnBMsg)) != null) {
 					//send interested msg.
 					InterestedMessage nIMsg = new InterestedMessage(0,2, myPeerID);
 					nIMsg.SendInterestedMsg(ClientSocket);

@@ -67,7 +67,7 @@ public class PeerProcess extends Thread {
 			
 			pInfo = (RemotePeerInfo) pTemp.peerInfoVector.elementAt(i);
 			clientPeerId = Integer.parseInt(pInfo.peerId);
-			pTemp.Clients.add(clientPeerId);
+			//pTemp.Clients.add(clientPeerId);
 			
 			if (clientPeerId != myPeerId) {
 				
@@ -84,7 +84,9 @@ public class PeerProcess extends Thread {
 				break;
 			}
 		}
+		System.out.println("Before "+ peerPort);
 		serverSock = new ServerSocket(peerPort);
+		System.out.println("After " + peerPort);
 	
 		//Start the server.
 		Socket connSocket = serverSock.accept();
@@ -100,5 +102,7 @@ public class PeerProcess extends Thread {
 		
 		//Start the scheduled tasks.
 		ScheduledTasks s = new ScheduledTasks(pTemp, p, m);
+		
+		
 	}	
 }
