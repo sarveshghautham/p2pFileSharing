@@ -4,8 +4,9 @@ import java.net.*;
 import java.io.*;
 
 
-public class ClientMessageHandler {
+public class ClientMessageHandler implements Serializable {
 
+	private static final long serialVersionUID = -6801972033167530864L;
 	public final int CHOKE = 0;
 	public final int UNCHOKE = 1;
 	public final int INTERESTED = 2;
@@ -26,8 +27,7 @@ public class ClientMessageHandler {
 			
 			if (ois.readObject() != null) {
 				return ois.readObject();
-			}
-			
+			}			
 		}
 		catch (ClassNotFoundException ex) {
 			System.out.println(ex);

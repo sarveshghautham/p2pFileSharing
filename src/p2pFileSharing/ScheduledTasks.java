@@ -40,6 +40,7 @@ public class ScheduledTasks {
     			//If the peer has the entire file, it has to randomly select K preferred neighbors.
     			if (f.CheckHasFile(this.pp.ServerPeerID)) {
     				
+    				System.out.println("Timer 1 in if");
     				//Don't send a choke message if the interested list is empty. Keep waiting.
     				while (this.pp.ListofInterestedPeers.isEmpty());
     				
@@ -51,12 +52,14 @@ public class ScheduledTasks {
     					K = this.pp.ListofInterestedPeers.size();
     				}
     				
+    				System.out.println("#1 Updated preferred neighbors");
     				//select preferred neighbors.
     				this.pp.PreferredNeighbors = c.SelectPreferredNeighbors(this.pp.ListofInterestedPeers, K);
     				
     			}
     			//Else: Choose the neighbors who provide the server with the highest download rate.
     			else {
+    				System.out.println("Timer 1 in else");
     				//Don't send a choke message if the interested list is empty. Keep waiting.
     				while (this.pp.ListofInterestedPeers.isEmpty());
     				
@@ -73,6 +76,7 @@ public class ScheduledTasks {
 	    					K = this.pp.ListofInterestedPeers.size();
 	    				}
 	    				
+	    				System.out.println("#2: Updated preferred neighbors");
 	    				//select preferred neighbors.
 	    				this.pp.PreferredNeighbors = c.SelectPreferredNeighbors(this.pp.ListofInterestedPeers, K);
 	    				
@@ -102,6 +106,7 @@ public class ScheduledTasks {
             
         	try {
 
+        		System.out.println("Timer 2");
         		//Don't send a choke message if the interested list is empty. Keep waiting.
         		while (this.pp.ListofInterestedPeers.isEmpty());
         		
@@ -110,7 +115,8 @@ public class ScheduledTasks {
 								
 				//select opt neighbors.
 				int optPeerID = c.SelectOptNeighbors(this.pp.ListofInterestedPeers, this.pp.PreferredNeighbors);
-    			//To be continued...
+    			
+				System.out.println("Selected opt unchoked neighbor"+optPeerID);
 				this.pp.optPeerID = optPeerID;
 			
     		}

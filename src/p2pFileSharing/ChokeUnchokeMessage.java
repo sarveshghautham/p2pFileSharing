@@ -10,6 +10,11 @@ import java.net.Socket;
 
 public class ChokeUnchokeMessage extends NormalMessages{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8718666531723398642L;
+
 	public ChokeUnchokeMessage () {
 		
 	}
@@ -56,7 +61,7 @@ public class ChokeUnchokeMessage extends NormalMessages{
 		}
 	}
 
-	public HashSet<Integer> SelectPreferredNeighbors (HashSet<Integer> ListOfInterestedPeers, int K) {
+	public HashSet<Integer> SelectPreferredNeighbors (Set<Integer> ListOfInterestedPeers, int K) {
 	
 		HashSet<Integer> PreferredNeighbors = new HashSet<Integer>();
 		int totSize = ListOfInterestedPeers.size();
@@ -73,7 +78,7 @@ public class ChokeUnchokeMessage extends NormalMessages{
 		return PreferredNeighbors;
 	}
 	
-	public int SelectOptNeighbors(HashSet<Integer> ListOfInterestedPeers, HashSet<Integer> PreferredNeighbors) {
+	public int SelectOptNeighbors(Set<Integer> ListOfInterestedPeers, HashSet<Integer> PreferredNeighbors) {
 		
 		int i=0,j=0,optPeerId=0;
 		

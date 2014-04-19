@@ -2,18 +2,27 @@ package p2pFileSharing;
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.Vector;
 
-public class PeerProcess extends Thread {
+public class PeerProcess extends Thread implements Serializable {
 
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2012106814493679910L;
 	int ServerPeerID;
 	int optPeerID;
 	// Will be moved. Temp function.
 	public Vector<RemotePeerInfo> peerInfoVector;
 	public BitFields myBitFields;	
-	public HashSet<Integer> ListofInterestedPeers;
-	public HashSet<Integer> PreferredNeighbors;
+	
+	public HashSet<Integer> InterestedPeersHashSet = new HashSet<Integer>();
+	Set<Integer> ListofInterestedPeers = Collections.synchronizedSet(InterestedPeersHashSet);
+	public HashSet<Integer> PreferredNeighbors = new HashSet<Integer>();
 	public Vector<Integer>  Clients;
 	public HashSet<Integer> neededByteIndex = new HashSet<Integer>();
 	public HashSet<Integer> requestedByteIndex = new HashSet<Integer>();
@@ -103,6 +112,6 @@ public class PeerProcess extends Thread {
 		//Start the scheduled tasks.
 		ScheduledTasks s = new ScheduledTasks(pTemp, p, m);
 		
-		
+		serverSock.close();
 	}	
 }

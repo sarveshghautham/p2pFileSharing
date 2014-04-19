@@ -1,11 +1,18 @@
 package p2pFileSharing;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.net.Socket;
 import java.util.HashSet;
 import java.util.Vector;
 
-class establishServerConnection extends Thread {
+class establishServerConnection extends Thread implements Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8127805062892273088L;
 	public Socket connectionSocket;
 	int PeerID;
 	int cPeerID;
@@ -17,6 +24,7 @@ class establishServerConnection extends Thread {
 	
 	
 	public NormalMessages nm = new NormalMessages();
+	public InterestedMessage im = new InterestedMessage();
 	
 	public establishServerConnection (Socket conSock, int peer_id, PeerProcess pp) {
 		this.connectionSocket = conSock;
@@ -70,57 +78,17 @@ class establishServerConnection extends Thread {
 			ServerMessageHandler m = new ServerMessageHandler();
 			Object readObj;
 			while (true) {
-				
-				while ((readObj = m.listenForMessages(connectionSocket, this.nm)) == null);
-				
+				System.out.println("Server: Listening for messages");
+				while ((readObj = m.listenForMessages(connectionSocket, this)) == null);
+				//readObj = m.listenForMessages(connectionSocket, this.nm);
 				int msgType = this.nm.MessageType;
+				System.out.println("MsgType:"+msgType);
 				m.HandleMessages(msgType, readObj, this, localReceivedByteIndex);
 				
 				readObj = null;
 			}
 			
-			/*
-			
-			ChokeUnchokeMessage c = new ChokeUnchokeMessage(0,1);
-			
-			//Need to change the condition
-			while (true) {
-				//Keep waiting.
-				while (!(this.pObj.PreferredNeighbors.contains(cPeerID))); 
-				
-				//Send unchoked message to preferred neighbor.
-				c.SendUnchokeMsg(connectionSocket);
-				
-				//Wait for request message.
-				
-				
-				//Data exchange.					
-				
-				while (this.pObj.choke == false);
-					
-				if (this.pObj.chokeList.contains(cPeerID)) {
-					c.SendChokeMsg(connectionSocket);
-				}
-			
-				this.pObj.choke = true;
-				
-			}
-		}
-				
-			
-			//Wait for client's interest/not interested message.
-			
-				
-			//Receive have message.
-			HaveMessage rxHvMsg = new HaveMessage();
-			int byteIndex = rxHvMsg.ReceiveHaveMsg(connectionSocket); 
-			if (byteIndex != -1) {
-				this.clientPeerBitFieldMsg.UpdateBitFieldMsg(byteIndex);
-			}
-			else {
-				System.out.println("Error in receiving have msg");
-			}
-			*/			
+						
 		}
 		
 		catch (IOException ex) {

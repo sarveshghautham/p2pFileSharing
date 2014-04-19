@@ -48,7 +48,7 @@ class BitFields extends NormalMessages implements Serializable{
 			InputStream is = soc.getInputStream();  
 			ObjectInputStream ois = new ObjectInputStream(is);  
 			BitFields RespMsg = (BitFields)ois.readObject();  
-			
+			System.out.println("Bitfield msg type:"+RespMsg.MessageType);
 			if (RespMsg.bitFieldMsg != null) {
 				System.out.println("ReceiveBitFieldMsg(): BitField message received");
 				return RespMsg;

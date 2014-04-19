@@ -74,6 +74,7 @@ class establishClientConnection extends Thread {
 			Object readObj = null;
 			
 			while (true) {
+				System.out.println("Client: Listening for messages");
 				while ((readObj = cm.listenForMessages(ClientSocket, this.nm)) == null);
 				
 				int msgType = this.nm.MessageType;

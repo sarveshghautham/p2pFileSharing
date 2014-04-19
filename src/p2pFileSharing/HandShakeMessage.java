@@ -3,6 +3,8 @@ import java.io.*;
 import java.net.*;
 
 public class HandShakeMessage implements Serializable {
+	
+	private static final long serialVersionUID = -849530622076337158L;
 	String HeaderMessage;
 	int PeerID;
 	

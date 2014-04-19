@@ -199,7 +199,7 @@ class FileHandler {
 		BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(FileName+"."+pieceIndex));		
 		bos.write(FilePiece);
 		
-		
+		bos.close();
 	}
 	
 	/*
