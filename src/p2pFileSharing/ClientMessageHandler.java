@@ -78,8 +78,7 @@ public class ClientMessageHandler {
 					else {
 						NotInterestedMessage ntm = new NotInterestedMessage(0, NOTINTERESTED, ec.myPeerID);
 						ntm.SendNotInterestedMsg(ec.clientSocket);
-					}
-					
+					}					
 				}
 				else {
 					System.out.println("Error in receiving have msg");
@@ -94,6 +93,15 @@ public class ClientMessageHandler {
 			break;
 			
 		case PIECE:
+			PieceMessage pm = (PieceMessage)obj;
+			FileHandler f = new FileHandler();
+			f.writePiece(pm.Filepiece, pm.msgByteIndex);
+			ec.pObj.myBitFields.UpdateBitFieldMsg(pm.msgByteIndex);
+			ec.pObj.neededByteIndex.remove(pm.msgByteIndex);
+			ec.pObj.receivedByteIndex.add(pm.msgByteIndex);
+			//Make the server to send the have message.
+			
+			
 			break;
 			
 		default: 

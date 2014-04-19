@@ -77,8 +77,8 @@ public class ScheduledTasks {
 	    				this.pp.PreferredNeighbors = c.SelectPreferredNeighbors(this.pp.ListofInterestedPeers, K);
 	    				
 	    				
-	    				ArrayList<Integer> chokeList = c.prepareChokeList(this.pp.PreferredNeighbors, oldPreferredNeighbors);
-	    				this.pp.choke = true;
+	    				//ArrayList<Integer> chokeList = c.prepareChokeList(this.pp.PreferredNeighbors, oldPreferredNeighbors);
+	    				//this.pp.choke = true;
 	    				
     				}	
     			}

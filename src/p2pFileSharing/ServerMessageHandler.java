@@ -1,6 +1,8 @@
 package p2pFileSharing;
 
 import java.net.*;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.io.*;
 
 
@@ -37,7 +39,7 @@ public class ServerMessageHandler {
 		
 	}
 	
-	public void HandleMessages (int MsgType, Object obj, establishServerConnection es) throws IOException {
+	public void HandleMessages (int MsgType, Object obj, establishServerConnection es, HashSet<Integer> localReceivedByteIndex) throws IOException {
 		
 		switch (MsgType) {
 		
@@ -87,8 +89,29 @@ public class ServerMessageHandler {
 				FileHandler f = new FileHandler();
 				int filePiece = f.readPiece(pieceIndex);
 				
-				PieceMessage pm = new PieceMessage(4, PIECE, pieceIndex, filePiece);
-				pm.SendPieceMsg(es.connectionSocket)s;
+				
+				if ((es.pObj.PreferredNeighbors.contains(es.cPeerID)) || (es.pObj.optPeerID == es.cPeerID)) {
+					
+					//TODO: if (have == false)
+					localReceivedByteIndex = es.pObj.receivedByteIndex;
+					
+					HaveMessage hm = new HaveMessage();
+					ArrayList<Integer> haveList = hm.prepareHaveList(es.pObj.receivedByteIndex, localReceivedByteIndex);
+					for (int i = 0; i < haveList.size(); i++) {
+						HaveMessage hmsg = new HaveMessage(4, HAVE, haveList.get(i));
+						hmsg.SendHaveMsg(es.connectionSocket);
+						localReceivedByteIndex.add(haveList.get(i));
+					}
+					
+					//Send piece msg.
+					PieceMessage pm = new PieceMessage(4, PIECE, pieceIndex, filePiece);
+					pm.SendPieceMsg(es.connectionSocket);
+				}
+				else {
+					//send choke message.
+					ChokeUnchokeMessage cm = new ChokeUnchokeMessage(0, CHOKE);
+					cm.SendChokeMsg(es.connectionSocket);
+				}					
 			}
 			
 			break;

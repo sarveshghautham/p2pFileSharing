@@ -85,10 +85,9 @@ class establishClientConnection extends Thread {
 			
 			//notify other threads about the updated bit field.
 		
+			//clientSocket.close();
 			
-//			clientSocket.close();
-			
-			/*TODO: We need to accept new peers which are created later. */
+			/* TODO: We need to accept new peers which are created later. */
 		}
 		catch (IOException ex) {
 			System.out.println("IOException occured:"+ex);

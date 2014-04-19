@@ -1,6 +1,7 @@
 package p2pFileSharing;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.HashSet;
 import java.util.Vector;
 
 class establishServerConnection extends Thread {
@@ -55,6 +56,7 @@ class establishServerConnection extends Thread {
 			else { //server bitfield is empty.
 				System.out.println("Server: Skipping bitfield msg");
 			}
+			HashSet<Integer> localReceivedByteIndex = new HashSet<Integer>();
 			
 			ServerMessageHandler m = new ServerMessageHandler();
 			Object readObj;
@@ -63,7 +65,7 @@ class establishServerConnection extends Thread {
 				while ((readObj = m.listenForMessages(connectionSocket, this.nm)) == null);
 				
 				int msgType = this.nm.MessageType;
-				m.HandleMessages(msgType, readObj, this);
+				m.HandleMessages(msgType, readObj, this, localReceivedByteIndex);
 				
 				readObj = null;
 			}

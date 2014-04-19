@@ -192,6 +192,16 @@ class FileHandler {
 		return bytesRead;
 		
 	}
+	
+	public void writePiece (int FilePiece, int pieceIndex) throws IOException {
+		
+		String FileName = this.getFileName();
+		BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(FileName+"."+pieceIndex));		
+		bos.write(FilePiece);
+		
+		
+	}
+	
 	/*
 	public static void main (String []args) throws IOException {
 		FileHandler f = new FileHandler();

@@ -14,11 +14,10 @@ public class PeerProcess extends Thread {
 	public BitFields myBitFields;	
 	public HashSet<Integer> ListofInterestedPeers;
 	public HashSet<Integer> PreferredNeighbors;
-	public Vector<Integer> Clients;
-	public ArrayList<Integer> chokeList;
+	public Vector<Integer>  Clients;
 	public HashSet<Integer> neededByteIndex = new HashSet<Integer>();
 	public HashSet<Integer> requestedByteIndex = new HashSet<Integer>();
-	boolean choke=false;
+	public HashSet<Integer> receivedByteIndex = new HashSet<Integer>();
 	
 	public PeerProcess (int peerID) {
 		this.ServerPeerID = peerID;
