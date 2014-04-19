@@ -31,7 +31,7 @@ class establishClientConnection extends Thread {
 		try {
 			//Creating multiple client sockets for peers already started.
 			Socket ClientSocket = new Socket(hostName, portNumber);
-			
+			this.clientSocket = ClientSocket;
 			//System.out.println("Before handshake: PeerID: "+peerID);
 			//Send handshake message
 			
@@ -42,15 +42,15 @@ class establishClientConnection extends Thread {
 			while (!(HMsg.ReceiveHandShakeMessage(ClientSocket)));
 			
 			//Now send a bitfield message.
-			//	BitFields clientBMsg = new BitFields(4, 5);
-			//	clientBMsg.intializedBitFieldMsg(myPeerID);
+				BitFields clientBMsg = new BitFields(4, 5);
+				clientBMsg.intializedBitFieldMsg(myPeerID);
 			
 			myBitFields.SendBitFieldMsg(ClientSocket);	
 			
 			//Now reveive a bitfield message from server.
 			BitFields receiveBMsg = new BitFields();
 			BitFields returnBMsg = receiveBMsg.ReceiveBitFieldMsg(ClientSocket); 
-			if (returnBMsg != null)
+			if (returnBMsg.bitFieldMsg != null)
 			{
 				this.serverPeerBitFieldMsg = returnBMsg;
 				if ( (myBitFields.AnalyzeReceivedBitFieldMsg(returnBMsg)) != null) {
@@ -74,7 +74,7 @@ class establishClientConnection extends Thread {
 			Object readObj = null;
 			
 			while (true) {
-				while ((readObj = cm.listenForMessages(clientSocket, this.nm)) == null);
+				while ((readObj = cm.listenForMessages(ClientSocket, this.nm)) == null);
 				
 				int msgType = this.nm.MessageType;
 				

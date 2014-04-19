@@ -53,6 +53,7 @@ class establishServerConnection extends Thread {
 			
 			//Constructing server bitfield.
 			BitFields serverBMsg = new BitFields(4,5);
+			serverBMsg.intializedBitFieldMsg(PeerID);
 			
 			//Server bitfield is not empty.
 			if (!serverBMsg.emptyBitField) {

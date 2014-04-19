@@ -34,9 +34,12 @@ class BitFields extends NormalMessages implements Serializable{
 	}
 	
 	public void SendBitFieldMsg (Socket clientSocket) throws IOException {
+		
+		if(this.bitFieldMsg !=null){
 		OutputStream os = clientSocket.getOutputStream();  
 		ObjectOutputStream oos = new ObjectOutputStream(os);  			  
 		oos.writeObject(this);
+		}
 	}
 	
 	public BitFields ReceiveBitFieldMsg (Socket soc) throws IOException {
@@ -46,7 +49,7 @@ class BitFields extends NormalMessages implements Serializable{
 			ObjectInputStream ois = new ObjectInputStream(is);  
 			BitFields RespMsg = (BitFields)ois.readObject();  
 			
-			if (RespMsg != null) {
+			if (RespMsg.bitFieldMsg != null) {
 				System.out.println("ReceiveBitFieldMsg(): BitField message received");
 				return RespMsg;
 			}

@@ -5,10 +5,13 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.net.Socket;
 
-public class InterestedMessage extends NormalMessages {
+public class InterestedMessage extends NormalMessages implements Serializable {
 
+	
+	private static final long serialVersionUID = -174333938837408245L;
 	int clientPeerID;
 	
 	public InterestedMessage () {
