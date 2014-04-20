@@ -56,8 +56,7 @@ class establishServerConnection extends Thread implements Serializable {
 				if (returnBMsg != null) {
 					break;
 				}
-			}
-		
+			}		
 			
 			//Constructing server bitfield.
 			BitFields serverBMsg = new BitFields(4,5);
@@ -87,9 +86,7 @@ class establishServerConnection extends Thread implements Serializable {
 				m.HandleMessages(msgType, readObj, this, localReceivedByteIndex);
 				
 				readObj = null;
-			}
-			
-						
+			}			
 		}
 		
 		catch (IOException ex) {

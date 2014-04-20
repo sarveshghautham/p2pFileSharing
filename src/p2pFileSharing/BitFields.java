@@ -25,6 +25,7 @@ class BitFields extends NormalMessages implements Serializable{
 		
 		if (fileHdlr.CheckHasFile(myPeerId)){
 			Arrays.fill(this.bitFieldMsg, true);
+			fileHdlr.SplitFile(fileHdlr.inputFileName, fileHdlr.fileSize, fileHdlr.pieceSize);
 			this.emptyBitField = false;
 		}
 		else {
