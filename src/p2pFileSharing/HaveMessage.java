@@ -7,6 +7,7 @@ import java.util.HashSet;
 
 public class HaveMessage extends NormalMessages {
 	
+	private static final long serialVersionUID = -3322773773628941069L;
 	int msgByteIndex;
 	
 	public HaveMessage () {

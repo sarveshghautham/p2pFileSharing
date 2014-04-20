@@ -101,9 +101,14 @@ public class ClientMessageHandler implements Serializable {
 				pieceIndex = rm2.getPieceIndex(ec.pObj.neededByteIndex, ec.pObj.requestedByteIndex);
 				RequestMessage rm3 = new RequestMessage(4, REQUEST, pieceIndex);
 				rm3.SendRequestMsg(ec.clientSocket);
-				
 			}
-			
+			else{
+				//Terminate once the client has received all the pieces.
+				FileHandler f1 = new FileHandler();
+				f1.ReadCommonConfigFile();
+				f1.JoinFile(f.inputFileName, f.fileSize, f.pieceSize, f.pieceCount);	
+				ec.finished = true;
+			}
 			
 			break;
 			

@@ -1,7 +1,6 @@
 package p2pFileSharing;
 import java.io.*;
 import java.net.*;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -9,10 +8,6 @@ import java.util.Vector;
 
 public class PeerProcess extends Thread implements Serializable {
 
-	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 2012106814493679910L;
 	int ServerPeerID;
 	int optPeerID;

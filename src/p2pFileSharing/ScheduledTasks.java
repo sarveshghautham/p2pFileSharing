@@ -65,7 +65,6 @@ public class ScheduledTasks {
     				
     				if (!this.pp.PreferredNeighbors.isEmpty()) {
     				
-    					HashSet<Integer> oldPreferredNeighbors = this.pp.PreferredNeighbors;
     					this.pp.PreferredNeighbors.clear();    					
     				
     					ChokeUnchokeMessage c = new ChokeUnchokeMessage(0, 1);

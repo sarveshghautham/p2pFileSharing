@@ -8,7 +8,8 @@ import java.util.Random;
 
 public class RequestMessage extends NormalMessages{
 
-int msgByteIndex;
+	private static final long serialVersionUID = 2487004078956739007L;
+	int msgByteIndex;
 	
 	public RequestMessage () {
 		

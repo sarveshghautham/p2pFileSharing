@@ -114,8 +114,13 @@ class FileHandler {
 			}
 			lineCount++;
 		}
+		//TODO: check this
+		float pieceCount = this.fileSize/this.pieceSize;
+		if (pieceCount > (int)pieceCount)
+			this.pieceCount = (int)pieceCount + 1;
+		else
+			this.pieceCount = (int)pieceCount;
 		
-		this.pieceCount = (int)this.fileSize/this.pieceSize;
 		System.out.println("Piece count:"+this.pieceCount);
 		br.close();
 	}
@@ -151,8 +156,8 @@ class FileHandler {
 		bis.close();
 	}
 	
-	public void JoinFile (String FileName, long FileSize, int PieceSize) throws IOException {
-		int pieceCount = (int)FileSize/PieceSize;
+	public void JoinFile (String FileName, long FileSize, int PieceSize, int pieceCount) throws IOException {
+		
 		int bytesRead = 0;
 		BufferedInputStream bis = null;
 		BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(FileName+".new"));

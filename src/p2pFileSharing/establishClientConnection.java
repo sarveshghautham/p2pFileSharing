@@ -1,9 +1,6 @@
 package p2pFileSharing;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
+
 import java.net.Socket;
 
 class establishClientConnection extends Thread {
@@ -17,6 +14,7 @@ class establishClientConnection extends Thread {
 	BitFields serverPeerBitFieldMsg;
 	BitFields myBitFields;
 	PeerProcess pObj;
+	Boolean finished = false;
 	NormalMessages nm = new NormalMessages();	
 	
 	public establishClientConnection (int mypeer_id, String peer_id, String peer_address, String peer_port, BitFields myBitField, PeerProcess pp) {
@@ -29,7 +27,9 @@ class establishClientConnection extends Thread {
 	}
 	
 	public void run() {
+		
 		try {
+			this.finished = false;
 			//Creating multiple client sockets for peers already started.
 			Socket ClientSocket = new Socket(hostName, portNumber);
 			this.clientSocket = ClientSocket;
@@ -82,15 +82,14 @@ class establishClientConnection extends Thread {
 				int msgType = this.nm.MessageType;
 				System.out.println("Msg type:"+msgType);
 				cm.HandleMessages(msgType, readObj, this);
-				
 				readObj = null;
+				
+				if (finished == true) {
+					break;
+				}
 			}
-			
-			//notify other threads about the updated bit field.
-		
-			//clientSocket.close();
-			
-			/* TODO: We need to accept new peers which are created later. */
+						
+			clientSocket.close();
 		}
 		catch (IOException ex) {
 			System.out.println("IOException occured:"+ex);
