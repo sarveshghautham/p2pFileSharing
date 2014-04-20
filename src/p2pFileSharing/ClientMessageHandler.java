@@ -18,16 +18,16 @@ public class ClientMessageHandler implements Serializable {
 	
 	public ClientMessageHandler () {}
 	
-	public Object listenForMessages (Socket soc, NormalMessages nm) throws IOException {
+	public Object listenForMessages (Socket soc, establishClientConnection ec) throws IOException {
 		
 		try {
 			InputStream is = soc.getInputStream();  
-			ObjectInputStream ois = new ObjectInputStream(is);  
-			nm = (NormalMessages)ois.readObject();
+			ObjectInputStream ois = new ObjectInputStream(is);
+			Object obj = ois.readObject();
+			ec.nm = (NormalMessages)obj;
 			
-			if (ois.readObject() != null) {
-				return ois.readObject();
-			}			
+			
+			return obj;
 		}
 		catch (ClassNotFoundException ex) {
 			System.out.println(ex);
@@ -43,16 +43,16 @@ public class ClientMessageHandler implements Serializable {
 		
 		case UNCHOKE:
 			
-			ChokeUnchokeMessage c = new ChokeUnchokeMessage(0, UNCHOKE);
+			//ChokeUnchokeMessage c = new ChokeUnchokeMessage(0, UNCHOKE);
 			RequestMessage rm = new RequestMessage();
 			
-			if (c.ReceiveChokeUnchokeMsg(ec.clientSocket)) {
+			//if (c.ReceiveChokeUnchokeMsg(ec.clientSocket)) {
 				//send request message.
 				int pieceIndex = rm.getPieceIndex(ec.pObj.neededByteIndex, ec.pObj.requestedByteIndex);
 				
 				RequestMessage rm1 = new RequestMessage(4, REQUEST, pieceIndex);
 				rm1.SendRequestMsg(ec.clientSocket);
-			}
+			//}
 			
 			break;
 		

@@ -19,12 +19,13 @@ class establishClientConnection extends Thread {
 	PeerProcess pObj;
 	NormalMessages nm = new NormalMessages();	
 	
-	public establishClientConnection (int mypeer_id, String peer_id, String peer_address, String peer_port, BitFields myBitField) {
+	public establishClientConnection (int mypeer_id, String peer_id, String peer_address, String peer_port, BitFields myBitField, PeerProcess pp) {
 		this.peerID = Integer.parseInt(peer_id); //Server's peer ID.
 		this.myPeerID = mypeer_id; //Client's peer ID.
 		this.hostName = peer_address;
 		this.portNumber = Integer.parseInt(peer_port);
 		this.myBitFields = myBitField;		
+		this.pObj = pp;
 	}
 	
 	public void run() {
@@ -42,8 +43,9 @@ class establishClientConnection extends Thread {
 			while (!(HMsg.ReceiveHandShakeMessage(ClientSocket)));
 			
 			//Now send a bitfield message.
-				BitFields clientBMsg = new BitFields(4, 5);
-				clientBMsg.intializedBitFieldMsg(myPeerID);
+			BitFields clientBMsg = new BitFields(4, 5);
+			clientBMsg.intializedBitFieldMsg(myPeerID, this.pObj);
+			System.out.println("In client: "+this.pObj.neededByteIndex.size());
 			
 			myBitFields.SendBitFieldMsg(ClientSocket);	
 			
@@ -75,10 +77,10 @@ class establishClientConnection extends Thread {
 			
 			while (true) {
 				System.out.println("Client: Listening for messages");
-				while ((readObj = cm.listenForMessages(ClientSocket, this.nm)) == null);
+				while ((readObj = cm.listenForMessages(ClientSocket, this)) == null);
 				
 				int msgType = this.nm.MessageType;
-				
+				System.out.println("Msg type:"+msgType);
 				cm.HandleMessages(msgType, readObj, this);
 				
 				readObj = null;

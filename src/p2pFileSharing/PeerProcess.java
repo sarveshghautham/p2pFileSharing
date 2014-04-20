@@ -81,9 +81,9 @@ public class PeerProcess extends Thread implements Serializable {
 			if (clientPeerId != myPeerId) {
 				
 				BitFields bF = new BitFields(4, 5);
-				bF.intializedBitFieldMsg(myPeerId);
+				bF.intializedBitFieldMsg(myPeerId, pTemp);
 				pTemp.myBitFields = bF;
-				ClientThreads = new establishClientConnection(myPeerId, pInfo.peerId, pInfo.peerAddress, pInfo.peerPort, pTemp.myBitFields);
+				ClientThreads = new establishClientConnection(myPeerId, pInfo.peerId, pInfo.peerAddress, pInfo.peerPort, pTemp.myBitFields, pTemp);
 				ClientThreads.start();
 				
 			}

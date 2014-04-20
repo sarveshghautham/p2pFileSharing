@@ -18,7 +18,7 @@ class BitFields extends NormalMessages implements Serializable{
 		super(msgLen, msgType);
 	}
 	
-	public void intializedBitFieldMsg (int myPeerId) throws IOException{
+	public void intializedBitFieldMsg (int myPeerId, PeerProcess pp) throws IOException{
 		FileHandler fileHdlr = new FileHandler();
 		fileHdlr.ReadCommonConfigFile();
 		this.bitFieldMsg = new boolean[fileHdlr.pieceCount];
@@ -30,6 +30,11 @@ class BitFields extends NormalMessages implements Serializable{
 		else {
 			Arrays.fill(this.bitFieldMsg, false);
 			this.emptyBitField = true;
+			if (pp.neededByteIndex.size() == 0) {
+				for (int i = 0; i < fileHdlr.pieceCount; i++) {
+					pp.neededByteIndex.add(i);
+				}
+			}
 		}
 	}
 	
