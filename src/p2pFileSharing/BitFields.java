@@ -21,6 +21,7 @@ class BitFields extends NormalMessages implements Serializable{
 	public void intializedBitFieldMsg (int myPeerId, PeerProcess pp) throws IOException{
 		FileHandler fileHdlr = new FileHandler();
 		fileHdlr.ReadCommonConfigFile();
+		System.out.println("Piece count:"+fileHdlr.pieceCount);
 		this.bitFieldMsg = new boolean[fileHdlr.pieceCount];
 		
 		if (fileHdlr.CheckHasFile(myPeerId)){

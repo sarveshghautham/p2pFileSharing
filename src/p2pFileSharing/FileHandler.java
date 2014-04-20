@@ -1,5 +1,6 @@
 package p2pFileSharing;
 import java.io.*;
+import java.util.ArrayList;
 
 class FileHandler {
 
@@ -36,7 +37,7 @@ class FileHandler {
 	
 	public String getFileName() throws IOException {
 		
-		String fileName = System.getProperty("user.dir")+"/src/p2pFileSharing/PeerInfo.cfg";
+		String fileName = System.getProperty("user.dir")+"/src/p2pFileSharing/Common.cfg";
 		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(fileName)));
 		String line="";
 		String []tokens = new String[4];
@@ -115,12 +116,14 @@ class FileHandler {
 		}
 		
 		this.pieceCount = (int)this.fileSize/this.pieceSize;
-		
+		System.out.println("Piece count:"+this.pieceCount);
 		br.close();
 	}
 	
 	
 	public void SplitFile (String FileName, long FileSize, int PieceSize) throws IOException {
+		
+		FileName = System.getProperty("user.dir")+"/src/p2pFileSharing/"+FileName;
 		
 		BufferedInputStream bis = new BufferedInputStream(new FileInputStream(FileName));
 		int bytesRead=0;
@@ -178,27 +181,31 @@ class FileHandler {
 		bw.close();
 	}
 	
-	public int readPiece (int pieceIndex) throws IOException {
+	public ArrayList<Integer> readPiece (int pieceIndex) throws IOException {
 		
 		int bytesRead=0;
-		String FileName = this.getFileName();
+		String FileName = System.getProperty("user.dir")+"/src/p2pFileSharing/"+this.getFileName();
 		
 		BufferedInputStream bis = new BufferedInputStream(new FileInputStream(FileName+"."+pieceIndex));
+		ArrayList<Integer> fileRead = new ArrayList<Integer> ();
 		
-		while ((bytesRead = bis.read()) != -1);
+		while ((bytesRead = bis.read()) != -1) {
+			fileRead.add(bytesRead);
+		}
 			
 		bis.close();
 		
-		return bytesRead;
+		return fileRead;
 		
 	}
 	
-	public void writePiece (int FilePiece, int pieceIndex) throws IOException {
+	public void writePiece (ArrayList<Integer> FilePiece, int pieceIndex) throws IOException {
 		
-		String FileName = this.getFileName();
-		BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(FileName+"."+pieceIndex));		
-		bos.write(FilePiece);
-		
+		String FileName = System.getProperty("user.dir")+"/src/p2pFileSharing/"+this.getFileName();
+		BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(FileName+"."+pieceIndex));
+		for (int i = 0; i < FilePiece.size(); i++) {
+			bos.write(FilePiece.get(i));		
+		}
 		bos.close();
 	}
 	

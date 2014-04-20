@@ -46,7 +46,7 @@ public class ServerMessageHandler implements Serializable {
 	
 	public void HandleMessages (int MsgType, Object obj, establishServerConnection es, HashSet<Integer> localReceivedByteIndex) throws IOException {
 		
-		System.out.println("Handle message:");
+		System.out.println("Handle message:"+MsgType);
 		
 		switch (MsgType) {
 		
@@ -88,13 +88,13 @@ public class ServerMessageHandler implements Serializable {
 			
 		case REQUEST:
 			//Receive the request message.
-			RequestMessage rm = new RequestMessage();
-			int pieceIndex = rm.ReceiveRequestMsg(es.connectionSocket);
+			RequestMessage rm = (RequestMessage)obj;
+			int pieceIndex = rm.msgByteIndex;
 			
 			if (pieceIndex != -1) {
 				//Send piece message.
 				FileHandler f = new FileHandler();
-				int filePiece = f.readPiece(pieceIndex);
+				ArrayList<Integer> filePiece = f.readPiece(pieceIndex);
 				
 				
 				if ((es.pObj.PreferredNeighbors.contains(es.cPeerID)) || (es.pObj.optPeerID == es.cPeerID)) {

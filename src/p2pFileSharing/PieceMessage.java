@@ -6,16 +6,21 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 
 public class PieceMessage extends NormalMessages{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5319989900688357862L;
 	int msgByteIndex;
-	int Filepiece;
+	ArrayList<Integer> Filepiece;
 	
 	public PieceMessage () {
 		
 	}
 	
-	public PieceMessage (int msgLen, int msgType, int msgByteIndex, int filePiece) {
+	public PieceMessage (int msgLen, int msgType, int msgByteIndex, ArrayList<Integer> filePiece) {
 		super (msgLen, msgType);
 		this.msgByteIndex = msgByteIndex;
 		this.Filepiece = filePiece;

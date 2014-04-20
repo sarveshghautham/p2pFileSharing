@@ -43,16 +43,11 @@ public class ClientMessageHandler implements Serializable {
 		
 		case UNCHOKE:
 			
-			//ChokeUnchokeMessage c = new ChokeUnchokeMessage(0, UNCHOKE);
 			RequestMessage rm = new RequestMessage();
+			int pieceIndex = rm.getPieceIndex(ec.pObj.neededByteIndex, ec.pObj.requestedByteIndex);
+			RequestMessage rm1 = new RequestMessage(4, REQUEST, pieceIndex);
+			rm1.SendRequestMsg(ec.clientSocket);
 			
-			//if (c.ReceiveChokeUnchokeMsg(ec.clientSocket)) {
-				//send request message.
-				int pieceIndex = rm.getPieceIndex(ec.pObj.neededByteIndex, ec.pObj.requestedByteIndex);
-				
-				RequestMessage rm1 = new RequestMessage(4, REQUEST, pieceIndex);
-				rm1.SendRequestMsg(ec.clientSocket);
-			//}
 			
 			break;
 		
@@ -99,7 +94,15 @@ public class ClientMessageHandler implements Serializable {
 			ec.pObj.myBitFields.UpdateBitFieldMsg(pm.msgByteIndex);
 			ec.pObj.neededByteIndex.remove(pm.msgByteIndex);
 			ec.pObj.receivedByteIndex.add(pm.msgByteIndex);
-			//Make the server to send the have message.
+			
+			if (!ec.pObj.neededByteIndex.isEmpty()) {
+				
+				RequestMessage rm2 = new RequestMessage();
+				pieceIndex = rm2.getPieceIndex(ec.pObj.neededByteIndex, ec.pObj.requestedByteIndex);
+				RequestMessage rm3 = new RequestMessage(4, REQUEST, pieceIndex);
+				rm3.SendRequestMsg(ec.clientSocket);
+				
+			}
 			
 			
 			break;
