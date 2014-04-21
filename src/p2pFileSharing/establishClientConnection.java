@@ -31,11 +31,13 @@ class establishClientConnection extends Thread {
 		try {
 			this.finished = false;
 			//Creating multiple client sockets for peers already started.
-			Socket ClientSocket = new Socket(hostName, portNumber);
+			System.out.println("Trying to establish a connection with: "+this.hostName+" using port number "+this.portNumber);
+			Socket ClientSocket = new Socket(this.hostName, this.portNumber);
 			this.clientSocket = ClientSocket;
 			//System.out.println("Before handshake: PeerID: "+peerID);
 			//Send handshake message
 			
+			System.out.println("Sending handshake to: "+peerID);
 			HandShakeMessage HMsg = new HandShakeMessage("HELLO", peerID);
 			HMsg.SendHandShakeMessage (ClientSocket);			
 			
@@ -45,13 +47,15 @@ class establishClientConnection extends Thread {
 			//Now send a bitfield message.
 			BitFields clientBMsg = new BitFields(4, 5);
 			clientBMsg.intializedBitFieldMsg(myPeerID, this.pObj);
-			System.out.println("In client: "+this.pObj.neededByteIndex.size());
 			
 			myBitFields.SendBitFieldMsg(ClientSocket);	
+			
+			
 			
 			//Now reveive a bitfield message from server.
 			BitFields receiveBMsg = new BitFields();
 			BitFields returnBMsg = receiveBMsg.ReceiveBitFieldMsg(ClientSocket); 
+			
 			if (returnBMsg.bitFieldMsg != null)
 			{
 				this.serverPeerBitFieldMsg = returnBMsg;
@@ -59,37 +63,45 @@ class establishClientConnection extends Thread {
 					//send interested msg.
 					InterestedMessage nIMsg = new InterestedMessage(0,2, myPeerID);
 					nIMsg.SendInterestedMsg(ClientSocket);
+			
 				}
 				else {
+					
 					//send not interested msg.
 					NotInterestedMessage nIMsg = new NotInterestedMessage(0,3, myPeerID);
 					nIMsg.SendNotInterestedMsg(ClientSocket);
+					
 				}
 			}
 			else {
+				
 				//send not interested msg.
 				NotInterestedMessage nIMsg = new NotInterestedMessage(0,3, myPeerID);
 				nIMsg.SendNotInterestedMsg(ClientSocket);
+				
 			}
 			
 			ClientMessageHandler cm = new ClientMessageHandler();
 			Object readObj = null;
 			
 			while (true) {
-				System.out.println("Client: Listening for messages");
+				//System.out.println("Client: Listening for messages");
 				while ((readObj = cm.listenForMessages(ClientSocket, this)) == null);
 				
 				int msgType = this.nm.MessageType;
-				System.out.println("Msg type:"+msgType);
+//				System.out.println("Msg type:"+msgType);
 				cm.HandleMessages(msgType, readObj, this);
 				readObj = null;
 				
-				if (finished == true) {
+				if (this.finished == true) {
 					break;
 				}
 			}
-						
+			
+			System.out.println("Closing client socket");
 			clientSocket.close();
+			
+			return;
 		}
 		catch (IOException ex) {
 			System.out.println("IOException occured:"+ex);

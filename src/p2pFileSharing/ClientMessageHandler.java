@@ -90,15 +90,18 @@ public class ClientMessageHandler implements Serializable {
 		case PIECE:
 			PieceMessage pm = (PieceMessage)obj;
 			FileHandler f = new FileHandler();
-			f.writePiece(pm.Filepiece, pm.msgByteIndex);
+			f.writePiece(pm.Filepiece, pm.msgByteIndex, ec.myPeerID);
 			ec.pObj.myBitFields.UpdateBitFieldMsg(pm.msgByteIndex);
 			ec.pObj.neededByteIndex.remove(pm.msgByteIndex);
 			ec.pObj.receivedByteIndex.add(pm.msgByteIndex);
 			
 			if (!ec.pObj.neededByteIndex.isEmpty()) {
+				//System.out.println("neededbyteindex size"+ec.pObj.neededByteIndex.size());
+				//System.out.println();
 				
 				RequestMessage rm2 = new RequestMessage();
 				pieceIndex = rm2.getPieceIndex(ec.pObj.neededByteIndex, ec.pObj.requestedByteIndex);
+				//System.out.println("Sending piece index"+pieceIndex);
 				RequestMessage rm3 = new RequestMessage(4, REQUEST, pieceIndex);
 				rm3.SendRequestMsg(ec.clientSocket);
 			}
@@ -106,7 +109,8 @@ public class ClientMessageHandler implements Serializable {
 				//Terminate once the client has received all the pieces.
 				FileHandler f1 = new FileHandler();
 				f1.ReadCommonConfigFile();
-				f1.JoinFile(f.inputFileName, f.fileSize, f.pieceSize, f.pieceCount);	
+				f1.JoinFile(f1.inputFileName, f1.fileSize, f1.pieceSize, f1.pieceCount, ec.myPeerID);
+				ec.pObj.ListofInterestedPeers.remove(ec.myPeerID);
 				ec.finished = true;
 			}
 			

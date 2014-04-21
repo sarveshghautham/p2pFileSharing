@@ -30,8 +30,6 @@ public class ServerMessageHandler implements Serializable {
 			Object obj = ois.readObject();
 			es.nm = (NormalMessages)obj;
 			
-			System.out.println("Msg type recvd:"+es.nm.MessageType);
-			
 			return obj;
 			
 			
@@ -46,7 +44,7 @@ public class ServerMessageHandler implements Serializable {
 	
 	public void HandleMessages (int MsgType, Object obj, establishServerConnection es, HashSet<Integer> localReceivedByteIndex) throws IOException {
 		
-		System.out.println("Handle message:"+MsgType);
+		//System.out.println("Handle message:"+MsgType);
 		
 		switch (MsgType) {
 		
@@ -94,7 +92,7 @@ public class ServerMessageHandler implements Serializable {
 			if (pieceIndex != -1) {
 				//Send piece message.
 				FileHandler f = new FileHandler();
-				ArrayList<Integer> filePiece = f.readPiece(pieceIndex);
+				ArrayList<Integer> filePiece = f.readPiece(pieceIndex, es.PeerID);
 				
 				
 				if ((es.pObj.PreferredNeighbors.contains(es.cPeerID)) || (es.pObj.optPeerID == es.cPeerID)) {

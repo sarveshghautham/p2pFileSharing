@@ -1,6 +1,7 @@
 package p2pFileSharing;
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashSet;
 
@@ -19,22 +20,25 @@ class establishServerConnection extends Thread implements Serializable {
 	PeerProcess pObj;
 	boolean interested;
 	boolean notInterested;
+	ServerSocket servSock;
 	
 	
 	public NormalMessages nm = new NormalMessages();
 	public InterestedMessage im = new InterestedMessage();
 	
-	public establishServerConnection (Socket conSock, int peer_id, PeerProcess pp) {
-		this.connectionSocket = conSock;
+	public establishServerConnection (int peer_id, PeerProcess pp, ServerSocket servSock) {
 		this.PeerID = peer_id; //My peer ID.
 		this.pObj = pp;
 		this.myBitFields = pp.myBitFields;
-		
+		this.servSock = servSock;
 	}
 	
 	public void run () {
 		//Get data from multiple clients.
 		try {
+			
+			Socket connSocket = this.servSock.accept();
+			this.connectionSocket = connSocket;
 			
 			HandShakeMessage HMsg = new HandShakeMessage(PeerID);
 			
@@ -43,8 +47,7 @@ class establishServerConnection extends Thread implements Serializable {
 			
 			HandShakeMessage RespMsg = new HandShakeMessage("HELLO", PeerID);
 			RespMsg.SendHandShakeMessage(connectionSocket);
-		
-			
+
 			BitFields receivedClientBMsg = new BitFields();
 			BitFields returnBMsg; 
 			//Wait for bitField msg from the client.
@@ -59,7 +62,6 @@ class establishServerConnection extends Thread implements Serializable {
 			//Constructing server bitfield.
 			BitFields serverBMsg = new BitFields(4,5);
 			serverBMsg.intializedBitFieldMsg(PeerID, this.pObj);
-			System.out.println("In server: "+this.pObj.neededByteIndex.size());
 			
 			//Server bitfield is not empty.
 			if (!serverBMsg.emptyBitField) {
@@ -76,11 +78,11 @@ class establishServerConnection extends Thread implements Serializable {
 			ServerMessageHandler m = new ServerMessageHandler();
 			Object readObj;
 			while (true) {
-				System.out.println("Server: Listening for messages");
+				//System.out.println("Server: Listening for messages");
 				while ((readObj = m.listenForMessages(connectionSocket, this)) == null);
 				//readObj = m.listenForMessages(connectionSocket, this.nm);
 				int msgType = this.nm.MessageType;
-				System.out.println("MsgType:"+msgType);
+				//System.out.println("MsgType:"+msgType);
 				m.HandleMessages(msgType, readObj, this, localReceivedByteIndex);
 				
 				readObj = null;

@@ -21,17 +21,17 @@ class BitFields extends NormalMessages implements Serializable{
 	public void intializedBitFieldMsg (int myPeerId, PeerProcess pp) throws IOException{
 		FileHandler fileHdlr = new FileHandler();
 		fileHdlr.ReadCommonConfigFile();
-		System.out.println("Piece count:"+fileHdlr.pieceCount);
 		this.bitFieldMsg = new boolean[fileHdlr.pieceCount];
 		
 		if (fileHdlr.CheckHasFile(myPeerId)){
 			Arrays.fill(this.bitFieldMsg, true);
-			fileHdlr.SplitFile(fileHdlr.inputFileName, fileHdlr.fileSize, fileHdlr.pieceSize);
+			fileHdlr.SplitFile(fileHdlr.inputFileName, fileHdlr.fileSize, fileHdlr.pieceSize, myPeerId);
 			this.emptyBitField = false;
 		}
 		else {
 			Arrays.fill(this.bitFieldMsg, false);
 			this.emptyBitField = true;
+			
 			if (pp.neededByteIndex.size() == 0) {
 				for (int i = 0; i < fileHdlr.pieceCount; i++) {
 					pp.neededByteIndex.add(i);
@@ -51,9 +51,14 @@ class BitFields extends NormalMessages implements Serializable{
 	
 	public BitFields ReceiveBitFieldMsg (Socket soc) throws IOException {
 		
+		System.out.println("in receive bit field msg");
+		
 		try {
+			
 			InputStream is = soc.getInputStream();  
-			ObjectInputStream ois = new ObjectInputStream(is);  
+			
+			ObjectInputStream ois = new ObjectInputStream(is);
+			
 			BitFields RespMsg = (BitFields)ois.readObject();  
 			System.out.println("Bitfield msg type:"+RespMsg.MessageType);
 			if (RespMsg.bitFieldMsg != null) {
@@ -83,7 +88,7 @@ class BitFields extends NormalMessages implements Serializable{
 		HashSet<Integer> indexList = new HashSet<Integer>();
 		
 		
-		System.out.println("Msg length:"+bMsg1.length);
+		//System.out.println("Msg length:"+bMsg1.length);
 		
 		for (int i=0; i < bMsg1.length; i++) {
 			if (bMsg1[i] != bMsg2[i] && bMsg2[i] == false) {

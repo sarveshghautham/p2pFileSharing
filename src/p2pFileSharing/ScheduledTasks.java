@@ -18,10 +18,10 @@ public class ScheduledTasks {
     	this.m = m;
     	
         timer1 = new Timer();
-        timer1.schedule(new SelectPreferredNeighbors(this.pp), p*1000);
+        timer1.scheduleAtFixedRate(new SelectPreferredNeighbors(this.pp), 0, p*1000);
         
         timer2 = new Timer();
-        timer2.schedule(new SelectOptNeighbors(this.pp), m*1000);
+        timer2.scheduleAtFixedRate(new SelectOptNeighbors(this.pp), 0, m*1000);
     }
 
     class SelectPreferredNeighbors extends TimerTask {
@@ -100,7 +100,6 @@ public class ScheduledTasks {
     		this.pp = pp;
     	}    	
     	
-    	
         public void run(){
             
         	try {
@@ -115,7 +114,7 @@ public class ScheduledTasks {
 				//select opt neighbors.
 				int optPeerID = c.SelectOptNeighbors(this.pp.ListofInterestedPeers, this.pp.PreferredNeighbors);
     			
-				System.out.println("Selected opt unchoked neighbor"+optPeerID);
+				System.out.println("Selected opt unchoked neighbor "+optPeerID);
 				this.pp.optPeerID = optPeerID;
 			
     		}

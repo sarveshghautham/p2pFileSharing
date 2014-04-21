@@ -89,10 +89,12 @@ public class ChokeUnchokeMessage extends NormalMessages{
 		Random r = new Random();
 		
 		//TODO: Change it to nested loop.
-		for (i = 0, j = 0; i < list.size() || j < list1.size(); i++, j++) {
-			
-			if (list.get(i) != list1.get(j)) {
-				list2.add(list.get(i));
+		
+		for (i = 0; i < list.size(); i++) {
+			for (j = 0; j < list1.size(); j++) {
+				if ((list.get(i) != list1.get(j)) && j == (list1.size() - 1) ){
+					list2.add(list.get(i));
+				}
 			}
 		}
 		
