@@ -19,16 +19,19 @@ public class HaveMessage extends NormalMessages {
 		this.msgByteIndex = msgByteIndex;
 	}
 	
-	public void SendHaveMsg (Socket clientSocket) throws IOException {
-		OutputStream os = clientSocket.getOutputStream();  
-		ObjectOutputStream oos = new ObjectOutputStream(os);  			  
-		oos.writeObject(this);
+	public void SendHaveMsg (OutputStream os) throws IOException {
+		//OutputStream os = clientSocket.getOutputStream();
+		ObjectOutputStream oos;
+		synchronized (os) {
+			oos = new ObjectOutputStream(os);  			  
+			oos.writeObject(this);	
+		}
+		
 	}
 	
-	public int ReceiveHaveMsg (Socket soc) throws IOException {
+	public int ReceiveHaveMsg (InputStream is ) throws IOException {
 		
 		try {
-			InputStream is = soc.getInputStream();  
 			ObjectInputStream ois = new ObjectInputStream(is);  
 			HaveMessage hm = (HaveMessage)ois.readObject(); 
 			
@@ -49,7 +52,7 @@ public class HaveMessage extends NormalMessages {
 		}
 	}
 
-	public ArrayList<Integer> prepareHaveList (HashSet<Integer> globalHashSet, HashSet<Integer> localHashSet) {
+	public synchronized ArrayList<Integer> prepareHaveList (HashSet<Integer> globalHashSet, HashSet<Integer> localHashSet) {
 		
 			
 		ArrayList<Integer> list1 = new ArrayList<Integer>(globalHashSet);

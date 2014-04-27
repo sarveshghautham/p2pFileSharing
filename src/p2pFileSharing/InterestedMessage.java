@@ -23,16 +23,17 @@ public class InterestedMessage extends NormalMessages implements Serializable {
 		this.clientPeerID = peerID;
 	}
 	
-	public void SendInterestedMsg (Socket clientSocket) throws IOException {
-		OutputStream os = clientSocket.getOutputStream();  
-		ObjectOutputStream oos = new ObjectOutputStream(os);  			  
-		oos.writeObject(this);
+	public void SendInterestedMsg (OutputStream os) throws IOException {
+		ObjectOutputStream oos;
+		synchronized (os) {
+			oos = new ObjectOutputStream(os);  			  
+			oos.writeObject(this);
+		}
 	}
 	
-	public boolean ReceiveInterestedMsg (Socket soc) throws IOException {
+	public boolean ReceiveInterestedMsg (InputStream is) throws IOException {
 		
 		try {
-			InputStream is = soc.getInputStream();  
 			ObjectInputStream ois = new ObjectInputStream(is);  
 			InterestedMessage im = (InterestedMessage)ois.readObject(); 
 			

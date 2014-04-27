@@ -44,7 +44,7 @@ public class ServerMessageHandler implements Serializable {
 	
 	public void HandleMessages (int MsgType, Object obj, establishServerConnection es, HashSet<Integer> localReceivedByteIndex) throws IOException {
 		
-		//System.out.println("Handle message:"+MsgType);
+		System.out.println("Handle message:"+MsgType);
 		
 		switch (MsgType) {
 		
@@ -59,11 +59,13 @@ public class ServerMessageHandler implements Serializable {
 			es.cPeerID = fromClientIntMsg.clientPeerID;
 							
 			es.interested = true;
-			es.pObj.ListofInterestedPeers.add(es.cPeerID);
+			es.pObj.log.receivedInterested(es.cPeerID);
+			es.pObj.ListofInterestedPeers.add(es.cPeerID);			
 			
 			while ( !(es.pObj.PreferredNeighbors.contains(es.cPeerID)) || (es.pObj.optPeerID != es.cPeerID) );
 			ChokeUnchokeMessage c = new ChokeUnchokeMessage(0, UNCHOKE);
-			c.SendUnchokeMsg(es.connectionSocket);				
+			//c.SendUnchokeMsg(es.connectionSocket);	
+			es.pObj.log.Unchoked(es.cPeerID);
 						
 			break;
 			
@@ -72,10 +74,34 @@ public class ServerMessageHandler implements Serializable {
 			NotInterestedMessage ntIm = (NotInterestedMessage)obj;
 			es.cPeerID = ntIm.clientPeerID;
 			es.notInterested = true;
+			es.pObj.log.receivedNotInterested(es.cPeerID);
 			
-			//TODO: Wait for change in server's bitField message.
-			//Synchronization.
-			//Send have message.
+			if (ntIm.finished == true && es.pObj.ListofInterestedPeers.contains(es.cPeerID)) {
+				es.pObj.ListofInterestedPeers.remove(es.cPeerID);
+			}
+			
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			/*
+			boolean test = false;
+			while (test==false){
+				if(!es.pObj.receivedByteIndex.isEmpty()){
+					test = true;
+					ArrayList<Integer> list = new ArrayList<Integer>(es.pObj.receivedByteIndex);
+					int testpiece = list.get(list.size()-1);
+					//HaveMessage hm = new HaveMessage();
+					System.out.println("Sending have to: "+es.cPeerID);
+					HaveMessage hmsg = new HaveMessage(4, 4, testpiece);
+					hmsg.SendHaveMsg(es.connectionSocket);
+					
+				}
+			}
+			*/
 			break;
 		
 		case HAVE:			
@@ -94,9 +120,8 @@ public class ServerMessageHandler implements Serializable {
 				FileHandler f = new FileHandler();
 				ArrayList<Integer> filePiece = f.readPiece(pieceIndex, es.PeerID);
 				
-				
 				if ((es.pObj.PreferredNeighbors.contains(es.cPeerID)) || (es.pObj.optPeerID == es.cPeerID)) {
-					
+					System.out.println("PRESENT inside ||");
 					//TODO: if (have == false)
 					localReceivedByteIndex = es.pObj.receivedByteIndex;
 					
@@ -104,18 +129,26 @@ public class ServerMessageHandler implements Serializable {
 					ArrayList<Integer> haveList = hm.prepareHaveList(es.pObj.receivedByteIndex, localReceivedByteIndex);
 					for (int i = 0; i < haveList.size(); i++) {
 						HaveMessage hmsg = new HaveMessage(4, HAVE, haveList.get(i));
-						hmsg.SendHaveMsg(es.connectionSocket);
+						//hmsg.SendHaveMsg(es.connectionSocket);
 						localReceivedByteIndex.add(haveList.get(i));
 					}
 					
 					//Send piece msg.
 					PieceMessage pm = new PieceMessage(4, PIECE, pieceIndex, filePiece);
-					pm.SendPieceMsg(es.connectionSocket);
+					//pm.SendPieceMsg(es.connectionSocket);
+					System.out.println("Sent piece:"+pieceIndex);
+					System.out.println("end of piece msg transfer");
 				}
 				else {
 					//send choke message.
 					ChokeUnchokeMessage cm = new ChokeUnchokeMessage(0, CHOKE);
-					cm.SendChokeMsg(es.connectionSocket);
+					//cm.SendChokeMsg(es.connectionSocket);
+					es.pObj.log.Choked(es.cPeerID);
+					
+					while ( !(es.pObj.PreferredNeighbors.contains(es.cPeerID)) || (es.pObj.optPeerID != es.cPeerID) );
+					ChokeUnchokeMessage c1 = new ChokeUnchokeMessage(0, UNCHOKE);
+					//c1.SendUnchokeMsg(es.connectionSocket);
+					es.pObj.log.Unchoked(es.cPeerID);
 				}					
 			}
 			

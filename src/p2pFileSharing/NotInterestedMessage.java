@@ -13,26 +13,33 @@ public class NotInterestedMessage extends NormalMessages implements Serializable
 	
 	private static final long serialVersionUID = 7153161823596163637L;
 	int clientPeerID;
+	boolean finished=false;
 	
 	public NotInterestedMessage () {
 		
 	}
 	
-	public NotInterestedMessage (int MsgLen, int MsgType, int clientPeerID) {
+	public NotInterestedMessage (int MsgLen, int MsgType, int clientPeerID, boolean finished) {
 		super(MsgLen, MsgType);
+		this.finished = finished;
 		this.clientPeerID = clientPeerID;
 	}
 	
-	public void SendNotInterestedMsg (Socket clientSocket) throws IOException {
-		OutputStream os = clientSocket.getOutputStream();  
-		ObjectOutputStream oos = new ObjectOutputStream(os);  			  
-		oos.writeObject(this);
+	public void SendNotInterestedMsg (OutputStream os ) throws IOException {
+		  
+		ObjectOutputStream oos;
+		
+		synchronized (os) {
+			oos = new ObjectOutputStream(os);  			  
+			oos.writeObject(this);	
+		}
+		
 	}
 	
-	public boolean ReceiveNotInterestedMsg (Socket soc) throws IOException {
+	public boolean ReceiveNotInterestedMsg (InputStream is) throws IOException {
 		
 		try {
-			InputStream is = soc.getInputStream();  
+			
 			ObjectInputStream ois = new ObjectInputStream(is);  
 			NotInterestedMessage im = (NotInterestedMessage)ois.readObject(); 
 			

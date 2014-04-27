@@ -22,36 +22,31 @@ public class HandShakeMessage implements Serializable {
 		System.out.println("Peer ID: "+PeerID);
 	}
 	
-	public void SendHandShakeMessage (Socket ClientSocket) throws IOException {
+	public void SendHandShakeMessage (OutputStream out) throws IOException {
 		
-		OutputStream os = ClientSocket.getOutputStream();  
-		ObjectOutputStream oos = new ObjectOutputStream(os);  			  
+		  
+		ObjectOutputStream oos = new ObjectOutputStream(out);  			  
 		oos.writeObject(this);
-		
+		System.out.println("Sending hs with " + this.PeerID);
 		//System.out.println("Hello sent to:"+this.PeerID);
 		
 		//os.close();
 		//oos.close();
 	}
 	
-	public boolean ReceiveHandShakeMessage (Socket ClientSocket) throws IOException {
+	public int ReceiveHandShakeMessage (InputStream in) throws IOException {
 		try {
-			InputStream is = ClientSocket.getInputStream();  
-			ObjectInputStream ois = new ObjectInputStream(is);  
+			//InputStream is = ClientSocket.getInputStream();  
+			ObjectInputStream ois = new ObjectInputStream(in);  
 			HandShakeMessage RespMsg = (HandShakeMessage)ois.readObject();  
 			if (RespMsg != null) {
 			
-				if (RespMsg.PeerID == this.PeerID) {
-					System.out.println("HandShake success");
-					return true;
-				}
-				else {
-					System.out.println("HandShake failed");
-					return false;
-				}
+				
+				return RespMsg.PeerID;
+				
 			}
 			else {
-				return false;
+				return -1;
 			}
 			
 		} 
@@ -62,6 +57,6 @@ public class HandShakeMessage implements Serializable {
 			//is.close();
 			//ois.close();
 		}
-		return false;
+		return -1;
 	}
 }

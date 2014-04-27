@@ -23,24 +23,27 @@ public class ChokeUnchokeMessage extends NormalMessages{
 		super(MsgLen, MsgType);
 	}
 	
-	public void SendChokeMsg (Socket clientSocket) throws IOException {
+	public void SendChokeMsg (OutputStream os) throws IOException {
 		
-		OutputStream os = clientSocket.getOutputStream();  
-		ObjectOutputStream oos = new ObjectOutputStream(os);  			  
-		oos.writeObject(this);
+		synchronized (os) {
+			ObjectOutputStream oos = new ObjectOutputStream(os);  			  
+			oos.writeObject(this);
+		} 		
 	}
 	
-	public void SendUnchokeMsg (Socket clientSocket) throws IOException {
-		OutputStream os = clientSocket.getOutputStream();  
-		ObjectOutputStream oos = new ObjectOutputStream(os);  			  
-		oos.writeObject(this);
+	public void SendUnchokeMsg (OutputStream os) throws IOException {
+		 
+		synchronized (os) {
+			ObjectOutputStream oos = new ObjectOutputStream(os);  			  
+			oos.writeObject(this);	
+		}
+		
 	}
 	
-	public boolean ReceiveChokeUnchokeMsg (Socket soc) throws IOException {
+	public boolean ReceiveChokeUnchokeMsg (InputStream is) throws IOException {
 		
 		try {
 		
-			InputStream is = soc.getInputStream();  
 			ObjectInputStream ois = new ObjectInputStream(is);  
 			ChokeUnchokeMessage cm = (ChokeUnchokeMessage)ois.readObject(); 
 			
@@ -61,7 +64,7 @@ public class ChokeUnchokeMessage extends NormalMessages{
 		}
 	}
 
-	public HashSet<Integer> SelectPreferredNeighbors (Set<Integer> ListOfInterestedPeers, int K) {
+	public synchronized HashSet<Integer> SelectPreferredNeighbors (Set<Integer> ListOfInterestedPeers, int K) {
 	
 		HashSet<Integer> PreferredNeighbors = new HashSet<Integer>();
 		int totSize = ListOfInterestedPeers.size();
@@ -70,15 +73,20 @@ public class ChokeUnchokeMessage extends NormalMessages{
 		for (int i = 0; i < K; i++) {
 			
 			List<Integer> list = new ArrayList<Integer>(ListOfInterestedPeers);
-			int peerid = list.get(r.nextInt(totSize));
-			
+			System.out.println("Totsize"+totSize);
+			int peerid;
+			if(totSize>1){
+			peerid = list.get(r.nextInt(totSize-1));
 			PreferredNeighbors.add(peerid);
+			}
+			if(totSize==1)
+				PreferredNeighbors.add(list.get(i));
 		}
 		
 		return PreferredNeighbors;
 	}
 	
-	public int SelectOptNeighbors(Set<Integer> ListOfInterestedPeers, HashSet<Integer> PreferredNeighbors) {
+	public synchronized int SelectOptNeighbors(Set<Integer> ListOfInterestedPeers, Set<Integer> PreferredNeighbors) {
 		
 		int i=0,j=0,optPeerId=0;
 		
@@ -97,22 +105,24 @@ public class ChokeUnchokeMessage extends NormalMessages{
 				}
 			}
 		}
-		
+		if(list2.size()>1)
 		optPeerId = list.get(r.nextInt(list2.size()));
+		if(list2.size()==1)
+			optPeerId = list.get(0);
 				
 		return optPeerId;	
 	}
 	
-	public ArrayList<Integer> prepareChokeList (HashSet<Integer> PreferredNeighbors, HashSet<Integer> OldPreferredNeighbors) {
+	public synchronized ArrayList<Integer> prepareChokeList (Set<Integer> PreferredNeighbors, Set<Integer> listofInterestedPeers) {
 		
-		ArrayList<Integer> list1 = new ArrayList<Integer>(OldPreferredNeighbors);
+		ArrayList<Integer> list1 = new ArrayList<Integer>(listofInterestedPeers);
 		ArrayList<Integer> list2 = new ArrayList<Integer>(PreferredNeighbors);
 		ArrayList<Integer> list3 = new ArrayList<Integer>();
 		int i=0, j=0;
 		
 		for (i = 0; i < list1.size(); i++) {
 			for (j = 0; j < list2.size(); j++) {
-				if ((list1.get(i) != list2.get(j)) && j == (list2.size() - 1) ){
+				if ( (list1.get(i) != list2.get(j)) && !(list3.contains(list1.get(i)))) {
 					list3.add(list1.get(i));
 				}
 			}

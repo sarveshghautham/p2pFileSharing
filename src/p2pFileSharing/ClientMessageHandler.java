@@ -1,6 +1,10 @@
 package p2pFileSharing;
 
 import java.net.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 import java.io.*;
 
 
@@ -18,15 +22,12 @@ public class ClientMessageHandler implements Serializable {
 	
 	public ClientMessageHandler () {}
 	
-	public Object listenForMessages (Socket soc, establishClientConnection ec) throws IOException {
+	public Object listenForMessages (InputStream is, establishClientConnection ec) throws IOException {
 		
 		try {
-			InputStream is = soc.getInputStream();  
 			ObjectInputStream ois = new ObjectInputStream(is);
 			Object obj = ois.readObject();
 			ec.nm = (NormalMessages)obj;
-			
-			
 			return obj;
 		}
 		catch (ClassNotFoundException ex) {
@@ -37,17 +38,23 @@ public class ClientMessageHandler implements Serializable {
 		
 	}
 	
-	public void HandleMessages (int MsgType, Object obj, establishClientConnection ec) throws IOException {
+	public void HandleMessages (int MsgType, Object obj, establishClientConnection ec, HashSet<Integer> localReceivedByteIndex) throws IOException {
+		
+		System.out.println("Handle message: "+MsgType);
 		
 		switch (MsgType) {
 		
 		case UNCHOKE:
 			
 			RequestMessage rm = new RequestMessage();
-			int pieceIndex = rm.getPieceIndex(ec.pObj.neededByteIndex, ec.pObj.requestedByteIndex);
+			int pieceIndex=0;
+			synchronized (ec.pObj.neededByteIndex) {
+				
+				pieceIndex = rm.getPieceIndex(ec.pObj.neededByteIndex);
+			}
+			System.out.println("Sending request for " + pieceIndex);
 			RequestMessage rm1 = new RequestMessage(4, REQUEST, pieceIndex);
-			rm1.SendRequestMsg(ec.clientSocket);
-			
+			rm1.SendRequestMsg(ec.out);
 			
 			break;
 		
@@ -55,24 +62,51 @@ public class ClientMessageHandler implements Serializable {
 			break;
 		
 		case INTERESTED:
+			
+			InterestedMessage fromClientIntMsg = (InterestedMessage)obj;
+			//ec.clientPeerID = fromClientIntMsg.clientPeerID;
+							
+			//ec.interested = true;
+			ec.pObj.log.receivedInterested(ec.clientPeerID);
+			
+			synchronized (ec.pObj.ListofInterestedPeers) {
+				System.out.println("Adding to ilist " + ec.clientPeerID);
+				ec.pObj.ListofInterestedPeers.add(ec.clientPeerID);
+			}
+						
+			
 			break;
 			
 		case NOTINTERESTED:
+			
+			NotInterestedMessage ntIm = (NotInterestedMessage)obj;
+			ec.clientPeerID = ntIm.clientPeerID;
+			//ec.notInterested = true;
+			ec.pObj.log.receivedNotInterested(ec.clientPeerID);
+			
+			if (ntIm.finished == true && ec.pObj.ListofInterestedPeers.contains(ec.clientPeerID)) {
+				ec.pObj.ListofInterestedPeers.remove(ec.clientPeerID);
+			}
 			
 			break;
 		
 		case HAVE:			
 				HaveMessage rxHvMsg = new HaveMessage();
-				int byteIndex = rxHvMsg.ReceiveHaveMsg(ec.clientSocket); 
+				//int byteIndex = rxHvMsg.ReceiveHaveMsg(ec.in);
+				rxHvMsg = (HaveMessage)obj;
+				int byteIndex = rxHvMsg.msgByteIndex;
 				if (byteIndex != -1) {
+					//System.out.println("Received a have message from:"+ec.peerID);
+					ec.pObj.log.receivedHave(ec.peerID, byteIndex);
+					//System.out.println("and byteIndex:"+byteIndex);
 					ec.serverPeerBitFieldMsg.UpdateBitFieldMsg(byteIndex);
-					if (ec.myBitFields.bitFieldMsg[byteIndex] == true) {
-						InterestedMessage im = new InterestedMessage(0,INTERESTED, ec.myPeerID);
-						im.SendInterestedMsg(ec.clientSocket);
+					if (ec.myBitFields.bitFieldMsg[byteIndex] == false) {
+						InterestedMessage im = new InterestedMessage(0,INTERESTED, ec.clientPeerID);
+						im.SendInterestedMsg(ec.out);
 					}
 					else {
-						NotInterestedMessage ntm = new NotInterestedMessage(0, NOTINTERESTED, ec.myPeerID);
-						ntm.SendNotInterestedMsg(ec.clientSocket);
+						NotInterestedMessage ntm = new NotInterestedMessage(0, NOTINTERESTED, ec.clientPeerID, false);
+						ntm.SendNotInterestedMsg(ec.out);
 					}					
 				}
 				else {
@@ -85,35 +119,121 @@ public class ClientMessageHandler implements Serializable {
 			break;
 			
 		case REQUEST:
+			//Get request and send piece
+			RequestMessage reqMsg = (RequestMessage)obj;
+			int pieceIndex1 = reqMsg.msgByteIndex;
+			
+			System.out.println("Got piece req for:"+pieceIndex1);
+			
+			if (pieceIndex1 != -1) {
+				//Send piece message.
+				FileHandler f = new FileHandler();
+				ArrayList<Integer> filePiece = f.readPiece(pieceIndex1, ec.peerID);
+				
+				boolean check = false;
+				
+				synchronized (ec.pObj.PreferredNeighbors) {
+					//check = ec.pObj.PreferredNeighbors.contains(ec.peerID);	
+				}
+				check = true;
+				if ( check == true || (ec.pObj.optPeerID == ec.clientPeerID)) {
+					
+					//localReceivedByteIndex = ec.pObj.receivedByteIndex;
+					
+					/*
+					HaveMessage hm = new HaveMessage();
+					ArrayList<Integer> haveList = hm.prepareHaveList(ec.pObj.receivedByteIndex, localReceivedByteIndex);
+					for (int i = 0; i < haveList.size(); i++) {
+						HaveMessage hmsg = new HaveMessage(4, HAVE, haveList.get(i));
+						hmsg.SendHaveMsg(ec.out);
+						localReceivedByteIndex.add(haveList.get(i));
+					}*/
+					
+					//Send piece msg.
+					PieceMessage pm = new PieceMessage(4, PIECE, pieceIndex1, filePiece);
+					pm.SendPieceMsg(ec.out);
+					System.out.println("Sent piece:"+pieceIndex1);
+					System.out.println("end of piece msg transfer");
+				}
+				else {
+					//send choke message.
+					//ChokeUnchokeMessage cm = new ChokeUnchokeMessage(0, CHOKE);
+					//cm.SendChokeMsg(ec.out);
+				//	ec.pObj.log.Choked(ec.clientPeerID);
+					
+					//ec.pObj.log.Unchoked(ec.clientPeerID);
+				}					
+			}
+			
 			break;
 			
 		case PIECE:
 			PieceMessage pm = (PieceMessage)obj;
 			FileHandler f = new FileHandler();
-			f.writePiece(pm.Filepiece, pm.msgByteIndex, ec.myPeerID);
-			ec.pObj.myBitFields.UpdateBitFieldMsg(pm.msgByteIndex);
-			ec.pObj.neededByteIndex.remove(pm.msgByteIndex);
-			ec.pObj.receivedByteIndex.add(pm.msgByteIndex);
+			f.writePiece(pm.Filepiece, pm.msgByteIndex, ec.clientPeerID);
 			
-			if (!ec.pObj.neededByteIndex.isEmpty()) {
-				//System.out.println("neededbyteindex size"+ec.pObj.neededByteIndex.size());
-				//System.out.println();
+			System.out.println("Got piece with piece index:"+pm.msgByteIndex);
+			
+			synchronized (ec.pObj.myBitFields) {
+				if (!ec.pObj.myBitFields.contains(pm.msgByteIndex)) {
+					ec.pObj.myBitFields.UpdateBitFieldMsg(pm.msgByteIndex);
+				}
+			}
+			
+			synchronized (ec.pObj.neededByteIndex) {
+				ec.pObj.neededByteIndex.remove(pm.msgByteIndex);	
+			}
+			
+			//ec.pObj.receivedByteIndex.add(pm.msgByteIndex);
+			//ec.updateHashAndSendHaveMsg(pm.msgByteIndex);
+			
+			synchronized (ec.pObj.haveList) {
+				ec.pObj.haveList.add(pm.msgByteIndex);	
+			}
+			
+			int pieceIndex2=-1;
+			synchronized (ec.pObj.neededByteIndex) {
+				synchronized (ec.pObj.receivedByteIndex) {
+					if (!ec.pObj.neededByteIndex.isEmpty()) {
+						//System.out.println("neededbyteindex size"+ec.pObj.neededByteIndex.size());
+						//System.out.println();
+						
+						RequestMessage rm2 = new RequestMessage();
+						synchronized (ec.pObj.neededByteIndex) {
+							pieceIndex2 = rm2.getPieceIndex(ec.pObj.neededByteIndex);
+						}
+						
+						
+						System.out.println("Sending req for: "+pieceIndex2);
+						ec.pObj.log.downloadedPiece(ec.peerID, pieceIndex2, ec.pObj.receivedByteIndex.size());
+						RequestMessage rm3 = new RequestMessage(4, REQUEST, pieceIndex2);
+						rm3.SendRequestMsg(ec.out);
+						
+						System.out.println("Sent req with pieceIndex: "+pieceIndex2);
+						synchronized (ec.pObj.esclientmap) {
+							
+							for (Integer key: ec.pObj.esclientmap.keySet()) {
+								System.out.println("Sending have message to:"+key); 
+								establishClientConnection tempEC = ec.pObj.esclientmap.get(key);
+								HaveMessage hm = new HaveMessage(4, HAVE, pm.msgByteIndex);
+								hm.SendHaveMsg(tempEC.out);
+							}
+						}
 				
-				RequestMessage rm2 = new RequestMessage();
-				pieceIndex = rm2.getPieceIndex(ec.pObj.neededByteIndex, ec.pObj.requestedByteIndex);
-				//System.out.println("Sending piece index"+pieceIndex);
-				RequestMessage rm3 = new RequestMessage(4, REQUEST, pieceIndex);
-				rm3.SendRequestMsg(ec.clientSocket);
+					}
+					else {
+						//Terminate once the client has received all the pieces.
+						FileHandler f1 = new FileHandler();
+						f1.ReadCommonConfigFile();
+						f1.JoinFile(f1.inputFileName, f1.fileSize, f1.pieceSize, f1.pieceCount, ec.clientPeerID);
+						ec.pObj.ListofInterestedPeers.remove(ec.clientPeerID);
+						//send not interested message
+						ec.pObj.log.completedDownload();
+						ec.finished = true;
+					}
+				}
+				
 			}
-			else{
-				//Terminate once the client has received all the pieces.
-				FileHandler f1 = new FileHandler();
-				f1.ReadCommonConfigFile();
-				f1.JoinFile(f1.inputFileName, f1.fileSize, f1.pieceSize, f1.pieceCount, ec.myPeerID);
-				ec.pObj.ListofInterestedPeers.remove(ec.myPeerID);
-				ec.finished = true;
-			}
-			
 			break;
 			
 		default: 

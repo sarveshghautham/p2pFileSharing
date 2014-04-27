@@ -26,16 +26,21 @@ public class PieceMessage extends NormalMessages{
 		this.Filepiece = filePiece;
 	}
 	
-	public void SendPieceMsg (Socket clientSocket) throws IOException {
-		OutputStream os = clientSocket.getOutputStream();  
-		ObjectOutputStream oos = new ObjectOutputStream(os);  			  
-		oos.writeObject(this);
+	public void SendPieceMsg (OutputStream os) throws IOException {
+		
+		System.out.println("In send piece ");
+		ObjectOutputStream oos;
+		synchronized (os) {
+			oos = new ObjectOutputStream(os);  			  
+			oos.writeObject(this);
+		}
+		System.out.println("exiting send piece ");
+		
 	}
 	
-	public int ReceivePieceMsg (Socket soc) throws IOException {
+	public int ReceivePieceMsg (InputStream is) throws IOException {
 		
 		try {
-			InputStream is = soc.getInputStream();  
 			ObjectInputStream ois = new ObjectInputStream(is);  
 			PieceMessage pm = (PieceMessage)ois.readObject(); 
 			

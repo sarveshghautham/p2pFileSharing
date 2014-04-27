@@ -12,6 +12,7 @@ class FileHandler {
 	public boolean CheckHasFile (int peerID) throws IOException {
 		
 		String fileName = System.getProperty("user.dir")+"/p2pFileSharing/PeerInfo.cfg";
+		//String fileName = System.getProperty("user.dir")+"/src/p2pFileSharing/PeerInfo.cfg";
 		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(fileName)));
 		String line="";
 		String []tokens = new String[4];
@@ -38,6 +39,7 @@ class FileHandler {
 	public String getFileName() throws IOException {
 		
 		String fileName = System.getProperty("user.dir")+"/p2pFileSharing/Common.cfg";
+		//String fileName = System.getProperty("user.dir")+"/src/p2pFileSharing/Common.cfg";
 		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(fileName)));
 		String line="";
 		String []tokens = new String[4];
@@ -61,6 +63,7 @@ class FileHandler {
 		int lineCount=0;
 		
 		String FileName = System.getProperty("user.dir")+"/p2pFileSharing/Common.cfg";
+		//String FileName = System.getProperty("user.dir")+"/src/p2pFileSharing/Common.cfg";
 		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(FileName)));
 		String line=null;
 		
@@ -83,6 +86,7 @@ class FileHandler {
 	
 	public int GetNumberOfPreferredNeighbors () throws IOException {
 		String FileName = System.getProperty("user.dir")+"/p2pFileSharing/Common.cfg";
+		//String FileName = System.getProperty("user.dir")+"/src/p2pFileSharing/Common.cfg";
 		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(FileName)));
 		String line=null;
 		
@@ -96,6 +100,7 @@ class FileHandler {
 	
 	public void ReadCommonConfigFile () throws IOException {
 		String FileName = System.getProperty("user.dir")+"/p2pFileSharing/Common.cfg";
+		//String FileName = System.getProperty("user.dir")+"/src/p2pFileSharing/Common.cfg";
 		
 		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(FileName)));
 		String line=null;
@@ -130,6 +135,7 @@ class FileHandler {
 	public void SplitFile (String FileName, long FileSize, int PieceSize, int PeerID) throws IOException {
 		
 		FileName = System.getProperty("user.dir")+"/p2pFileSharing/peer_"+PeerID+"/"+FileName;
+		//FileName = System.getProperty("user.dir")+"/src/p2pFileSharing/peer_"+PeerID+"/"+FileName;
 		
 		BufferedInputStream bis = new BufferedInputStream(new FileInputStream(FileName));
 		int bytesRead=0;
@@ -162,7 +168,9 @@ class FileHandler {
 		int bytesRead = 0;
 		BufferedInputStream bis = null;
 		
-		FileName = System.getProperty("user.dir")+"/p2pFileSharing/peer_"+PeerID+"/"+FileName; 
+		FileName = System.getProperty("user.dir")+"/p2pFileSharing/peer_"+PeerID+"/"+FileName;
+		//FileName = System.getProperty("user.dir")+"/src/p2pFileSharing/peer_"+PeerID+"/"+FileName;
+		
 		BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(FileName+".new"));
 		
 		for (int i=0; i<pieceCount; i++) {
@@ -193,7 +201,7 @@ class FileHandler {
 		
 		int bytesRead=0;
 		String FileName = System.getProperty("user.dir")+"/p2pFileSharing/peer_"+PeerID+"/"+this.getFileName();
-		
+		//String FileName = System.getProperty("user.dir")+"/src/p2pFileSharing/peer_"+PeerID+"/"+this.getFileName();
 		BufferedInputStream bis = new BufferedInputStream(new FileInputStream(FileName+"."+pieceIndex));
 		ArrayList<Integer> fileRead = new ArrayList<Integer> ();
 		
@@ -217,6 +225,7 @@ class FileHandler {
 	public void writePiece (ArrayList<Integer> FilePiece, int pieceIndex, int PeerID) throws IOException {
 		
 		String FileName = System.getProperty("user.dir")+"/p2pFileSharing/peer_"+PeerID+"/"+this.getFileName();
+		//String FileName = System.getProperty("user.dir")+"/src/p2pFileSharing/peer_"+PeerID+"/"+this.getFileName();
 		BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(FileName+"."+pieceIndex));
 		for (int i = 0; i < FilePiece.size(); i++) {
 			bos.write(FilePiece.get(i));		

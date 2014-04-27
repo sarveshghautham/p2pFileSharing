@@ -20,16 +20,18 @@ public class RequestMessage extends NormalMessages{
 		this.msgByteIndex = msgByteIndex;
 	}
 	
-	public void SendRequestMsg (Socket clientSocket) throws IOException {
-		OutputStream os = clientSocket.getOutputStream();  
-		ObjectOutputStream oos = new ObjectOutputStream(os);  			  
-		oos.writeObject(this);
+	public void SendRequestMsg (OutputStream os) throws IOException {
+
+		synchronized (os) {
+			ObjectOutputStream oos = new ObjectOutputStream(os);  			  
+			oos.writeObject(this);
+		}
+		
 	}
 	
-	public int ReceiveRequestMsg (Socket soc) throws IOException {
+	public int ReceiveRequestMsg (InputStream is) throws IOException {
 		
 		try {
-			InputStream is = soc.getInputStream();  
 			ObjectInputStream ois = new ObjectInputStream(is);  
 			RequestMessage rm = (RequestMessage)ois.readObject(); 
 			
@@ -50,14 +52,15 @@ public class RequestMessage extends NormalMessages{
 		}
 	}
 	
-	public int getPieceIndex(HashSet<Integer> neededByteIndex, HashSet<Integer> requestedByteIndex) {
+	public synchronized int getPieceIndex(HashSet<Integer> neededByteIndex) {
 		
-		int pieceIndex = 0;
+		int pieceIndex = -1;
+		Random r = new Random();
+		List<Integer> list = new ArrayList<Integer>(neededByteIndex);
 		
 		int totSize = neededByteIndex.size();
-		Random r = new Random();
 		
-		List<Integer> list = new ArrayList<Integer>(neededByteIndex);
+		/*
 		
 		if (requestedByteIndex != null) {
 			while (true) {
@@ -68,8 +71,9 @@ public class RequestMessage extends NormalMessages{
 			}
 		}
 		else {
+			*/
 			pieceIndex = list.get(r.nextInt(totSize));
-		}
+		//}
 	
 		return pieceIndex;
 		

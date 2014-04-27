@@ -40,34 +40,41 @@ class BitFields extends NormalMessages implements Serializable{
 		}
 	}
 	
-	public void SendBitFieldMsg (Socket clientSocket) throws IOException {
+	public synchronized void SendBitFieldMsg (OutputStream os) throws IOException {
+		ObjectOutputStream oos;
 		
 		if(this.bitFieldMsg !=null){
-		OutputStream os = clientSocket.getOutputStream();  
-		ObjectOutputStream oos = new ObjectOutputStream(os);  			  
-		oos.writeObject(this);
+			synchronized (os) {
+				oos = new ObjectOutputStream(os);  			  
+				oos.writeObject(this);	
+			}			
 		}
 	}
 	
-	public BitFields ReceiveBitFieldMsg (Socket soc) throws IOException {
+	public BitFields ReceiveBitFieldMsg (InputStream is ) throws IOException {
 		
 		System.out.println("in receive bit field msg");
 		
 		try {
 			
-			InputStream is = soc.getInputStream();  
-			
 			ObjectInputStream ois = new ObjectInputStream(is);
+			Object obj = ois.readObject();
 			
-			BitFields RespMsg = (BitFields)ois.readObject();  
-			System.out.println("Bitfield msg type:"+RespMsg.MessageType);
-			if (RespMsg.bitFieldMsg != null) {
-				System.out.println("ReceiveBitFieldMsg(): BitField message received");
-				return RespMsg;
+			if (obj instanceof HaveMessage) {
+				return null;
 			}
 			else {
-				System.out.println("ReceiveBitFieldMsg(): BitField message not received");
-				return null;
+			
+				BitFields RespMsg = (BitFields)obj;  
+				System.out.println("Bitfield msg type:"+RespMsg.MessageType);
+				if (RespMsg.bitFieldMsg != null) {
+					System.out.println("ReceiveBitFieldMsg(): BitField message received");
+					return RespMsg;
+				}
+				else {
+					System.out.println("ReceiveBitFieldMsg(): BitField message not received");
+					return null;
+				}
 			}
 		} 
 		catch (ClassNotFoundException ex) {
@@ -80,18 +87,23 @@ class BitFields extends NormalMessages implements Serializable{
 		}
 	}
 	
-	public HashSet<Integer> AnalyzeReceivedBitFieldMsg (BitFields receivedBit) {
+	public synchronized HashSet<Integer> AnalyzeReceivedBitFieldMsg (BitFields receivedBit) {
 		
-		boolean[] bMsg1 = receivedBit.bitFieldMsg;
-		boolean[] bMsg2 = this.bitFieldMsg;
+		boolean[] bMsg2 = receivedBit.bitFieldMsg;
+		boolean[] bMsg1 = this.bitFieldMsg;
 		
 		HashSet<Integer> indexList = new HashSet<Integer>();
 		
+		System.out.println("sizes = " + bMsg1.length + " " + bMsg2.length);
+		for (int i = 0; i < bMsg2.length; i++) {
+			System.out.print(bMsg2[i] + "      " + bMsg1[i]);
+		}
 		
+		System.out.println();
 		//System.out.println("Msg length:"+bMsg1.length);
 		
 		for (int i=0; i < bMsg1.length; i++) {
-			if (bMsg1[i] != bMsg2[i] && bMsg2[i] == false) {
+			if (bMsg1[i] != bMsg2[i] && bMsg1[i] == false) {
 				indexList.add(i);
 			}
 		}
@@ -99,9 +111,19 @@ class BitFields extends NormalMessages implements Serializable{
 		return indexList;
 	}
 	
-	public void UpdateBitFieldMsg (int index) {
+	public synchronized void UpdateBitFieldMsg (int index) {
 		
 		this.bitFieldMsg[index] = true;
 		
+	}
+	
+	public synchronized boolean contains (int index) {
+		
+		if (this.bitFieldMsg[index] == true) {
+			return false;
+		}
+		else {
+			return true;
+		}
 	}
 }
